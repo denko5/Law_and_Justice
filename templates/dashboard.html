@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kilifi Legal Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS Variables for Palette & Accessibility */
+        :root {
+            --primary-color: #0d3c75;      /* Deep Blue */
+            --primary-light: #1e5490;
+            --accent-color: #ffc107;       /* Yellow/Amber */
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --danger-color: #dc3545;
+
+            --bg-light: #f4f7f9;
+            --bg-gradient: linear-gradient(135deg, #f3f6fa 0%, #e8eef7 100%);
+            --card-bg: rgba(255, 255, 255, 1);
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+            --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.1); /* Lighter hover shadow */
+            
+            --sidebar-expanded-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --footer-bg-color: #1a2a40; /* Dark blue matching the overall theme */
+        }
+
+        /* ====== Base Styles & Layout ====== */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            overflow-x: hidden; 
+        }
+
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-expanded-width);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* ====== Sidebar (Vertical Nav) ====== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-expanded-width);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1050;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        /* Mobile Off-Canvas State */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                left: calc(var(--sidebar-expanded-width) * -1); 
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.4);
+            }
+            .sidebar.mobile-open {
+                left: 0; 
+            }
+            .main-content {
+                margin-left: 0; 
+            }
+        }
+
+        /* Sidebar Brand & Nav */
+        .sidebar-brand {
+             padding: 15px 10px;
+             font-weight: 600;
+             font-size: 1.2rem;
+             text-align: center;
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+             white-space: nowrap;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: white; /* Ensure brand text is white */
+             text-decoration: none;
+        }
+        .sidebar-brand img {
+            height: 40px;
+            width: 40px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+        }
+        .sidebar-brand span {
+            margin-left: 10px;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-brand { justify-content: center; }
+        .sidebar.collapsed .sidebar-brand span { display: none; }
+        .sidebar.collapsed .sidebar-brand img { margin: 0; }
+
+        .sidebar-nav { 
+            padding: 1rem 0; 
+            flex-grow: 1; /* Allow nav to fill space */
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-nav .nav-item:last-of-type { /* Push last items to bottom */
+            margin-top: auto;
+        }
+
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none;
+            overflow: hidden; /* For active indicator animation */
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white !important;
+        }
+        .nav-link.active::before { /* Active indicator */
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+        .sidebar.collapsed .nav-link.active::before { /* Collapsed active indicator */
+            width: 100%;
+            height: 4px;
+            bottom: 0;
+            top: auto;
+        }
+
+        .nav-link i { font-size: 1.4rem; min-width: 20px; }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 12px 0;
+            margin: 0 10px;
+        }
+        .sidebar.collapsed .nav-link span { display: none; }
+        
+
+        /* Mobile Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ====== Top Header REDESIGN ====== */
+        .top-header {
+            background: var(--card-bg);
+            box-shadow: var(--shadow-subtle);
+            padding: 0.75rem 1.5rem; /* Adjusted padding */
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Page title always visible now in header on mobile */
+        .page-title h1 {
+            font-size: 1.25rem; /* Smaller for header */
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        .page-title p {
+            font-size: 0.85rem;
+            color: #718096;
+            margin: 0;
+            display: none; /* Hide subtitle on mobile header */
+        }
+
+        @media (min-width: 768px) {
+            .page-title h1 {
+                font-size: 1.75rem; /* Larger on desktop */
+            }
+            .page-title p {
+                display: block; /* Show subtitle on desktop */
+            }
+        }
+
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.3s ease;
+            margin-right: 1rem; /* Space between toggle and title */
+        }
+        .sidebar-toggle:hover {
+            background: rgba(13, 60, 117, 0.1);
+        }
+        @media (max-width: 767.98px) {
+            .sidebar-toggle {
+                margin-right: 0.5rem;
+            }
+            .top-header .page-title { /* Make it flexible to take space */
+                flex-grow: 1; 
+                text-align: left;
+            }
+        }
+
+
+        /* Profile Dropdown Styling */
+        .header-right .dropdown-toggle {
+            color: var(--primary-color);
+        }
+        .header-right .dropdown-toggle:hover {
+            color: var(--primary-light);
+        }
+        .header-right .dropdown-menu {
+            border-radius: 8px;
+            box-shadow: var(--shadow-subtle);
+        }
+        .header-right .dropdown-item i {
+            color: #6c757d;
+        }
+
+
+        /* ====== Stats Card Redesign ====== */
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            box-shadow: var(--shadow-subtle);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            border: 1px solid #e0e6f0;
+            height: 100%; /* Ensure cards are same height in a row */
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-icon-wrapper {
+            width: 45px;
+            height: 45px;
+            min-width: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            margin-right: 1rem;
+        }
+
+        .stat-card-body {
+            flex-grow: 1;
+        }
+
+        .stat-card h4 {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+            color: #6c757d;
+        }
+
+        .stat-card p {
+            font-size: 1.5rem; 
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-color);
+        }
+        
+        /* Color Mapping for stat cards */
+        .stat-card.color-primary .stat-icon-wrapper { background: rgba(13, 60, 117, 0.1); color: var(--primary-color); }
+        .stat-card.color-warning .stat-icon-wrapper { background: rgba(255, 193, 7, 0.1); color: var(--accent-color); }
+        .stat-card.color-success .stat-icon-wrapper { background: rgba(40, 167, 69, 0.1); color: var(--success-color); }
+        .stat-card.color-info .stat-icon-wrapper { background: rgba(23, 162, 184, 0.1); color: var(--info-color); }
+
+        /* ====== Dashboard Content & Sections ====== */
+        .dashboard-grid {
+            padding: 2rem; 
+            flex-grow: 1;
+        }
+        @media (max-width: 767.98px) {
+            .dashboard-grid { padding: 1rem; }
+        }
+
+        .content-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid #e0e6f0; /* Consistent light border */
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 0.75rem;
+        }
+        .section-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        .section-header i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        /* ====== Kanban-style Cards for Hearings and Cases ====== */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive columns */
+            gap: 1.5rem;
+        }
+
+        .kanban-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: var(--shadow-subtle);
+            padding: 1.25rem;
+            border: 1px solid #e0e6f0;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .kanban-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .kanban-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .kanban-card-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+        .kanban-card-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .kanban-card-parties {
+            font-size: 0.9rem;
+            color: #555;
+            font-weight: 500;
+        }
+        .kanban-card-details {
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        /* >>>>> UPDATED FOOTER STYLES FOR RESPONSIVENESS <<<<< */
+        .kanban-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Allows wrapping on tight spaces */
+            gap: 0.75rem 0.5rem; /* Vertical and horizontal gap between wrapped items */
+            margin-top: 0.75rem; 
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
+        }
+
+        /* Status Badges */
+        .badge {
+            font-weight: 600;
+            padding: 0.5em 0.9em; /* Slightly larger padding for modern look */
+            border-radius: 18px; /* More rounded */
+            font-size: 0.75rem;
+            min-width: 100px; /* Ensure badge has enough room for text and countdown */
+            text-align: center;
+        }
+        .urgent-badge {
+            background: var(--danger-color);
+            color: white;
+            animation: pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+
+        /* Countdown Styles */
+        .countdown {
+            font-weight: 600;
+            margin-left: 0.25rem;
+            display: inline-block; 
+        }
+
+        /* Action Link Styling (New Look) */
+        .action-link {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap; /* Prevent internal wrapping of the link text */
+        }
+        .action-link:hover {
+            opacity: 0.8;
+        }
+
+        .action-link.virtual {
+            color: var(--primary-color);
+            background-color: rgba(13, 60, 117, 0.1);
+        }
+        .action-link.physical {
+            color: var(--success-color);
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        /* <<<<< END UPDATED FOOTER STYLES <<<<< */
+
+        /* Table Styles - Removed table for kanban style in recent cases */
+        .table-responsive { /* Kept in case it's used elsewhere, but not for recent cases */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-subtle);
+        }
+        .table thead th {
+             background: var(--primary-color);
+             color: white;
+             font-weight: 600;
+        }
+
+        /* Form Styles */
+        .contact-form .form-label {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(13, 60, 117, 0.3);
+        }
+
+        /* ====== Footer Styles FIX ====== */
+        .footer {
+            background-color: var(--footer-bg-color); /* Dark blue */
+            color: white;
+            margin-top: auto;
+            padding: 3rem 0; /* Consistent padding */
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+        .footer h5, .footer h6 {
+            color: white;
+        }
+        .footer .list-unstyled li {
+            margin-bottom: 0.5rem;
+        }
+        .footer .list-unstyled li a {
+            font-size: 0.95rem;
+        }
+
+        /* Utility for small screens */
+        .text-wrap-none { white-space: nowrap; }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="overlay" id="mobileOverlay"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
+                <img src="{{ url_for('static', filename='case management.jpeg') }}" alt="Kilifi Legal Logo">
+                <span>Kilifi Legal</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{{ url_for('welcome') }}" class="nav-link active">
+                    <i class="bi bi-house-door-fill"></i>
+                    <span>Home</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('visitor_dashboard') }}" class="nav-link active">
+                    <i class="bi bi-house-door-fill"></i>
+                    <span>Visitors</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('my_cases') }}" class="nav-link">
+                    <i class="bi bi-folder-fill"></i>
+                    <span>My Cases</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('documents') }}" class="nav-link">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    <span>Documents</span>
+                </a>
+            </div>
+            
+            {% if current_user.role == 'admin' %}
+            <div class="nav-item">
+                <a href="{{ url_for('admin_messages') }}" class="nav-link">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span>Admin Messages</span>
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="nav-item"> 
+                <a href="{{ url_for('profile') }}" class="nav-link">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Profile</span>
+                 </a>
+            </div>
+            <div class="nav-item">
+                 <a href="{{ url_for('logout') }}" class="nav-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                 </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content" id="mainContent">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title">
+                    <h1>Welcome, {{ current_user.full_name }}</h1>
+                    <p class="d-none d-md-block">Your legal dashboard overview</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="rounded-circle bg-warning text-dark fw-bold d-flex justify-content-center align-items-center" style="width: 36px; height: 36px;">
+                            {{ current_user.full_name.split()[0][0] }}{{ current_user.full_name.split()[-1][0] }}
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-2"></i>View Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <div class="container-fluid dashboard-grid">
+            
+            <div class="row g-3 mb-5">
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="stat-card color-primary">
+                        <div class="stat-icon-wrapper"><i class="bi bi-briefcase-fill"></i></div>
+                        <div class="stat-card-body">
+                            <h4>Total Cases</h4>
+                            <p>{{ total_cases }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="stat-card color-warning">
+                        <div class="stat-icon-wrapper"><i class="bi bi-hourglass-split"></i></div>
+                        <div class="stat-card-body">
+                            <h4>Ongoing Cases</h4>
+                            <p>{{ ongoing_cases }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="stat-card color-success">
+                        <div class="stat-icon-wrapper"><i class="bi bi-check-circle-fill"></i></div>
+                        <div class="stat-card-body">
+                            <h4>Closed Cases</h4>
+                            <p>{{ closed_cases }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="stat-card color-info">
+                        <div class="stat-icon-wrapper"><i class="bi bi-file-earmark-text-fill"></i></div>
+                        <div class="stat-card-body">
+                            <h4>Documents</h4>
+                            <p>{{ total_documents }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="bi bi-calendar-check"></i>
+                    <h3>Upcoming Hearings</h3>
+                </div>
+                
+                {% if upcoming_hearings %}
+                    <div class="kanban-board">
+                        {% for case in upcoming_hearings %}
+                            <div class="kanban-card">
+                                <div class="kanban-card-header">
+                                    <div class="kanban-card-title">{{ case.case_number }}</div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#">View Details</a></li>
+                                            <li><a class="dropdown-item" href="#">Edit Hearing</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="kanban-card-meta">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    {{ case.next_hearing_date.strftime('%d %B, %Y %H:%M') }}
+                                </div>
+                                <div class="kanban-card-parties">
+                                    <i class="bi bi-people-fill me-1"></i> Parties: {{ case.parties }}
+                                </div>
+                                <div class="kanban-card-details text-muted">
+                                    Type: {{ case.case_type }}
+                                </div>
+                                
+                                <div class="kanban-card-footer">
+                                    {% set time_diff = (case.next_hearing_date - now).total_seconds() %}
+                                    {% if time_diff <= 86400 %}
+                                        <span class="badge urgent-badge">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Urgent 
+                                            <span class="countdown" data-time="{{ case.next_hearing_date.isoformat() }}"></span>
+                                        </span>
+                                    {% elif time_diff <= 604800 %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock-fill me-1"></i> Soon
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-calendar-event-fill me-1"></i> Scheduled
+                                        </span>
+                                    {% endif %}
+
+                                    {% if case.hearing_mode == 'Virtual' %}
+                                        <a href="{{ case.court_link or '#' }}" target="_blank" class="action-link virtual">
+                                            <i class="bi bi-camera-video-fill me-1"></i>Join Virtual
+                                        </a>
+                                    {% elif case.hearing_mode == 'Physical' and case.department %}
+                                        <a href="https://www.google.com/maps/search/{{ case.department | urlencode }}" target="_blank" class="action-link physical">
+                                            <i class="bi bi-geo-alt-fill me-1"></i>Map Venue
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{{ url_for('export_hearings_pdf') }}" class="btn btn-outline-primary mt-4">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Export Hearings PDF
+                    </a>
+                {% else %}
+                    <div class="alert alert-secondary mt-3">
+                        <i class="bi bi-info-circle-fill me-2"></i>No upcoming hearings scheduled.
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="bi bi-folder-check"></i>
+                    <h3>Recent Cases</h3>
+                </div>
+                
+                <div class="kanban-board">
+                    {% for case in cases %}
+                        <div class="kanban-card">
+                            <div class="kanban-card-header">
+                                <div class="kanban-card-title">{{ case.case_number }}</div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="#">View Details</a></li>
+                                        <li><a class="dropdown-item" href="#">Edit Case</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="kanban-card-meta">
+                                <i class="bi bi-calendar me-1"></i>
+                                Filed: {{ case.date_filed.strftime('%d %B, %Y') }}
+                            </div>
+                            <div class="kanban-card-parties">
+                                <i class="bi bi-people-fill me-1"></i> Parties: {{ case.parties }}
+                            </div>
+                            <div class="kanban-card-details text-muted">
+                                Handled By: {{ case.handled_by }}
+                            </div>
+                            
+                            <div class="kanban-card-footer">
+                                {% if case.status == 'Ongoing' %}
+                                    <span class="badge bg-warning text-dark">Ongoing</span>
+                                {% elif case.status == 'Closed' %}
+                                    <span class="badge bg-success">Closed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ case.status }}</span>
+                                {% endif %}
+                                <a href="#" class="action-link text-info">
+                                    <i class="bi bi-file-earmark-text-fill me-1"></i>{{ case.documents|length }} Documents
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="bi bi-headset"></i>
+                    <h3>Need Help? Contact Support</h3>
+                </div>
+                
+                <form method="POST" action="/contact" class="contact-form">
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Your Message</label>
+                        <textarea class="form-control" name="message" rows="4" placeholder="Describe your issue..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <h3>Support Messages</h3>
+                </div>
+                
+                <button class="btn btn-outline-secondary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#userMessages" aria-expanded="false">
+                    View Submitted Messages ({{ current_user.contact_messages|length if current_user.contact_messages else 0 }})
+                </button>
+
+                <div class="collapse" id="userMessages">
+                    {% if current_user.contact_messages and current_user.contact_messages|length > 0 %}
+                    <form method="POST" action="{{ url_for('delete_user_messages') }}">
+                        <button type="submit" class="btn btn-sm btn-danger mb-3">
+                            <i class="bi bi-trash-fill me-1"></i>Delete Selected
+                        </button>
+
+                        {% for msg in current_user.contact_messages %}
+                        <div class="card mb-3 {% if msg.reply %}border-success{% else %}border-warning{% endif %} border-start border-5">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6><strong>Sent:</strong> {{ msg.submitted_at.strftime('%Y-%m-%d %H:%M') }}</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="delete_ids" value="{{ msg.id }}" id="delete-{{ msg.id }}">
+                                        <label class="form-check-label small" for="delete-{{ msg.id }}">Delete</label>
+                                    </div>
+                                </div>
+                                <hr class="my-2">
+                                <p class="small"><strong>Your Message:</strong> {{ msg.message }}</p>
+
+                                {% if msg.reply %}
+                                <div class="mt-3 p-3 bg-light border-start border-success border-3 rounded">
+                                    <p class="mb-1 small"><strong>Admin Reply:</strong> {{ msg.reply }}</p>
+                                    <p class="text-muted mb-0">
+                                        <small>
+                                            <i class="bi bi-check-circle-fill me-1 text-success"></i>
+                                            Replied on {{ msg.replied_at.strftime('%Y-%m-%d %H:%M') }}
+                                        </small>
+                                    </p>
+                                </div>
+                                {% else %}
+                                <p class="text-muted mt-3 small">⏳ Awaiting admin response...</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info">You haven't submitted any messages yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="row gy-4">
+                    <div class="col-md-4">
+                        <h5 class="fw-bold mb-3">Kilifi Legal Portal</h5>
+                        <p class="small text-light">
+                            Connecting justice and innovation — your trusted digital legal platform in Kilifi County.
+                        </p>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-3">Quick Links</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="{{ url_for('welcome') }}">Home</a></li>
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="#">Legal Services</a></li>
+                            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-3">Contact Information</h6>
+                        <p class="small mb-1">
+                            <i class="bi bi-envelope-fill me-2"></i>Email: 
+                            <a href="mailto:support@kilifilegal.com">support@kilifilegal.com</a>
+                        </p>
+                        <p class="small mb-1">
+                            <i class="bi bi-phone-fill me-2"></i>Phone: +254 700 333 444
+                        </p>
+                        <p class="small">
+                            <i class="bi bi-geo-alt-fill me-2"></i>Address: Kilifi Plaza, 3rd Floor — Beside Equity Bank
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="my-4 border-light opacity-25">
+
+                <div class="text-center small text-light">
+                    <p class="mb-0">© 2025 Kilifi Legal Portal. All Rights Reserved.</p>
+                    <a href="#" class="text-light text-decoration-none me-2">Privacy Policy</a> |
+                    <a href="#" class="text-light text-decoration-none ms-2">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Sidebar toggle functionality
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const desktopBreakpoint = 768; // Matches Bootstrap's md breakpoint
+
+        function toggleSidebar() {
+            const isMobile = window.innerWidth < desktopBreakpoint;
+            
+            if (isMobile) {
+                const isOpen = sidebar.classList.toggle('mobile-open');
+                mobileOverlay.classList.toggle('active');
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+                sidebarToggle.querySelector('i').className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+            } else {
+                const isCollapsed = sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                // Icon remains 'list' for desktop collapse
+                sidebarToggle.querySelector('i').className = 'bi bi-list';
+            }
+        }
+
+        function initializeLayout() {
+             const isMobile = window.innerWidth < desktopBreakpoint;
+             if (isMobile) {
+                 // Ensure desktop-specific classes are removed on mobile
+                 sidebar.classList.remove('collapsed');
+                 mainContent.classList.remove('expanded');
+                 
+                 // Reset mobile open state
+                 sidebar.classList.remove('mobile-open');
+                 mobileOverlay.classList.remove('active');
+                 document.body.style.overflow = '';
+                 sidebarToggle.querySelector('i').className = 'bi bi-list'; // Default hamburger icon
+             } else {
+                 // On desktop, if sidebar was collapsed before, keep it that way
+                 // Otherwise, ensure it's expanded by default
+                 if (!sidebar.classList.contains('collapsed')) {
+                     mainContent.style.marginLeft = 'var(--sidebar-expanded-width)';
+                 }
+                 mobileOverlay.classList.remove('active');
+                 sidebar.classList.remove('mobile-open'); // Ensure mobile class is off
+                 document.body.style.overflow = ''; // Ensure body scroll is on
+                 sidebarToggle.querySelector('i').className = 'bi bi-list';
+             }
+        }
+
+        // Event Listeners
+        if(sidebarToggle) { sidebarToggle.addEventListener('click', toggleSidebar); }
+        if(mobileOverlay) { mobileOverlay.addEventListener('click', toggleSidebar); }
+        
+        // Debounce resize to prevent performance hit
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(initializeLayout, 200);
+        });
+        
+        // Initial call to set correct state on load
+        window.addEventListener('load', initializeLayout);
+
+
+        // Countdown timer function (preserved)
+        function updateCountdowns() {
+            const countdowns = document.querySelectorAll('.countdown');
+            countdowns.forEach(el => {
+                if (!el.dataset.time) return;
+                const targetTime = new Date(el.dataset.time);
+                const now = new Date();
+                const diff = targetTime - now;
+
+                if (diff > 0) {
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const paddedMinutes = String(minutes).padStart(2, '0');
+                    el.textContent = ` (${hours}h ${paddedMinutes}m left)`;
+                } else {
+                    el.textContent = ` (Now)`;
+                }
+            });
+        }
+
+        // Update every minute (60,000 milliseconds)
+        setInterval(updateCountdowns, 60000);
+        // Initial call
+        updateCountdowns();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

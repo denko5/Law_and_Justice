@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Cases - Kilifi Legal Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS Variables for Palette & Accessibility */
+        :root {
+            --primary-color: #0d3c75;      /* Deep Blue */
+            --primary-light: #1e5490;
+            --accent-color: #ffc107;       /* Yellow/Amber */
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --danger-color: #dc3545;
+
+            --bg-light: #f4f7f9;
+            --bg-gradient: linear-gradient(135deg, #f3f6fa 0%, #e8eef7 100%);
+            --card-bg: rgba(255, 255, 255, 1);
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.1);
+            
+            --sidebar-expanded-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --footer-bg-color: #1a2a40;
+        }
+
+        /* ====== Base Styles & Layout ====== */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            overflow-x: hidden; 
+        }
+
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-expanded-width);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden; 
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* ====== Sidebar (Vertical Nav) ====== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-expanded-width);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1050;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        /* Mobile Off-Canvas State */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                left: calc(var(--sidebar-expanded-width) * -1); 
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.4);
+            }
+            .sidebar.mobile-open {
+                left: 0; 
+            }
+            .main-content {
+                margin-left: 0; 
+            }
+        }
+
+        /* Sidebar Brand & Nav */
+        .sidebar-brand {
+             padding: 15px 10px;
+             font-weight: 600;
+             font-size: 1.2rem;
+             text-align: center;
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+             white-space: nowrap;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: white; 
+             text-decoration: none;
+        }
+        .sidebar-brand img {
+            height: 40px;
+            width: 40px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+        }
+        .sidebar-brand span {
+            margin-left: 10px;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-brand { justify-content: center; }
+        .sidebar.collapsed .sidebar-brand span { display: none; }
+
+        .sidebar-nav { 
+            padding: 1rem 0; 
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none;
+            overflow: hidden; 
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white !important;
+        }
+        .nav-link.active::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+        .nav-link i { font-size: 1.4rem; min-width: 20px; }
+
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 12px 0; margin: 0 10px; }
+        .sidebar.collapsed .nav-link span { display: none; }
+        
+
+        /* Mobile Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ====== Top Header (Consistent Design) ====== */
+        .top-header {
+            background: var(--card-bg);
+            box-shadow: var(--shadow-subtle);
+            padding: 0.75rem 1.5rem; 
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left { display: flex; align-items: center; }
+
+        .page-title h1 { font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin: 0; }
+        .page-title p { font-size: 0.85rem; color: #718096; margin: 0; display: none; }
+
+        @media (min-width: 768px) {
+            .page-title h1 { font-size: 1.75rem; }
+            .page-title p { display: block; }
+        }
+
+        .sidebar-toggle {
+            background: none; border: none; font-size: 1.5rem; color: var(--primary-color); cursor: pointer;
+            padding: 0.5rem; border-radius: 8px; transition: background 0.3s ease, transform 0.3s ease;
+            margin-right: 1rem; 
+        }
+        .sidebar-toggle:hover { background: rgba(13, 60, 117, 0.1); }
+
+
+        /* ====== Dashboard Content & Sections ====== */
+        .dashboard-grid { padding: 2rem; flex-grow: 1; }
+        
+        .content-section {
+            background: var(--card-bg); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
+            box-shadow: var(--shadow-subtle); border: 1px solid #e0e6f0; 
+        }
+        .page-header-section {
+             background-color: #e9f1ff; border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
+             box-shadow: var(--shadow-subtle); text-align: center;
+        }
+        
+        /* Tables */
+        .table-responsive {
+            border-radius: 12px; overflow-x: auto; box-shadow: var(--shadow-subtle);
+            border: 1px solid #e0e6f0;
+        }
+        .table { background-color: white; margin-bottom: 0; }
+        .table thead th { background: var(--primary-color); color: white; font-weight: 600; }
+
+        /* --- Custom Table Row Styling --- */
+        .case-row { transition: background-color 0.3s ease; }
+        .case-row:hover { background-color: #f0f4f8 !important; }
+        /* Make the toggle column explicitly clickable */
+        .expand-toggle { cursor: pointer; }
+
+        /* Detail row styling */
+        .detail-row td { padding: 0 !important; border-top: none; }
+        
+        .detail-content {
+            padding: 15px 20px; border-radius: 0 0 12px 12px; border: 1px solid #dee2e6; border-top: none;
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.02);
+            /* Expanded Row Color */
+            background-color: #e9f1ff; 
+        }
+        
+        /* Bulk Scheduling Table Width Adjustment */
+        .bulk-schedule-table { min-width: 600px; }
+
+        /* ====== Footer Styles (Consistent Design) ====== */
+        .footer {
+            background-color: var(--footer-bg-color); color: white; margin-top: auto; padding: 3rem 0; 
+        }
+        .footer a {
+            color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: color 0.3s ease;
+        }
+        .footer a:hover { color: var(--accent-color); }
+
+
+        /* !!! MOBILE RESPONSIVE ENHANCEMENTS !!! */
+        @media (max-width: 767.98px) {
+            .sidebar { left: calc(var(--sidebar-expanded-width) * -1); }
+            .main-content { margin-left: 0; }
+            .dashboard-grid { padding: 1rem; } 
+            
+            /* Table density for mobile */
+            .table-responsive .table { font-size: 0.8rem; }
+            .table-responsive .table th,
+            .table-responsive .table td { padding: 0.5rem 0.6rem; white-space: nowrap; }
+            .table-responsive .table .btn-sm { font-size: 0.75rem; padding: 0.2rem 0.5rem; }
+            .detail-content { padding: 10px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="overlay" id="mobileOverlay"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
+                <img src="{{ url_for('static', filename='case management.jpeg') }}" alt="Kilifi Legal Logo">
+                <span>Kilifi Legal</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{{ url_for('welcome') }}" class="nav-link">
+                    <i class="bi bi-house-door-fill"></i>
+                    <span>Home</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('my_cases') }}" class="nav-link active">
+                    <i class="bi bi-folder-fill"></i>
+                    <span>My Cases</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('documents') }}" class="nav-link">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    <span>Documents</span>
+                </a>
+            </div>
+            
+            {% if current_user.role == 'admin' %}
+            <div class="nav-item">
+                <a href="{{ url_for('admin_messages') }}" class="nav-link">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span>Admin Messages</span>
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="nav-item"> 
+                <a href="{{ url_for('profile') }}" class="nav-link">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Profile</span>
+                 </a>
+            </div>
+            <div class="nav-item">
+                 <a href="{{ url_for('logout') }}" class="nav-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                 </a>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content" id="mainContent">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title">
+                    <h1>My Cases</h1>
+                    <p class="d-none d-md-block">View, filter, and manage your legal cases with ease</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="rounded-circle bg-warning text-dark fw-bold d-flex justify-content-center align-items-center" style="width: 36px; height: 36px;">
+                            {% if current_user.full_name %}
+                                {{ current_user.full_name.split()[0][0] }}{{ current_user.full_name.split()[-1][0] }}
+                            {% else %}
+                                U
+                            {% endif %}
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-2"></i>View Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <div class="container-fluid dashboard-grid">
+            
+            <div class="page-header-section">
+                <h2 class="fw-bold text-dark mb-2"><i class="bi bi-briefcase-fill me-2"></i>Filed Cases</h2>
+                <p class="text-muted">A comprehensive list of all your active and closed legal matters.</p>
+                <a href="{{ url_for('add_case') }}" class="btn btn-success mt-2"><i class="bi bi-plus-circle-fill me-2"></i>Add New Case</a>
+            </div>
+
+            <div class="content-section filter-section p-3">
+                 <form method="GET" class="row g-2 align-items-end">
+                    <div class="col-12 col-md-2"><input type="text" name="search" class="form-control" placeholder="Case Number/ID"></div>
+                    <div class="col-12 col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Paused">Paused</option>
+                            <option value="Resumed">Resumed</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2"><input type="text" name="handled_by" class="form-control" placeholder="Handled By (Attorney)"></div>
+                    <div class="col-12 col-md-2"><input type="text" name="case_type" class="form-control" placeholder="Case Type"></div>
+                    <div class="col-12 col-md-2"><input type="date" name="date_filed" class="form-control"></div>
+                    <div class="col-12 col-md-2"><button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel-fill me-1"></i>Filter</button></div>
+                </form>
+
+                <div class="row mt-3 g-2 justify-content-end">
+                    <div class="col-12 col-md-3 col-lg-2"><a href="{{ url_for('export_pdf') }}" class="btn btn-outline-danger w-100"><i class="bi bi-file-pdf-fill me-1"></i>Export PDF</a></div>
+                    <div class="col-12 col-md-3 col-lg-2"><a href="{{ url_for('export_excel') }}" class="btn btn-outline-success w-100"><i class="bi bi-file-excel-fill me-1"></i>Export Excel</a></div>
+                </div>
+            </div>
+
+            {% if cases %}
+            <div class="content-section p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;" class="text-center">Details</th>
+                                <th>Case Number</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Parties</th>
+                                <th>Date Filed</th>
+                                <th>Next Hearing</th>
+                                <th>Handled By</th>
+                                <th>Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for case in cases %}
+                            <tr class="case-row" id="case-row-{{ case.id }}">
+                                <td class="text-center expand-toggle" data-bs-toggle="collapse" data-bs-target="#detail-{{ case.id }}" aria-expanded="false" aria-controls="detail-{{ case.id }}">
+                                    <i class="bi bi-plus-circle-fill text-primary toggle-icon"></i>
+                                </td>
+                                <td class="fw-bold">{{ case.case_number }}</td>
+                                <td>{{ case.case_type }}</td>
+                                <td>
+                                    {% if case.status == 'Closed' %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{{ case.status }}</span>
+                                    {% elif case.status == 'Paused' %}
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-pause-circle me-1"></i>{{ case.status }}</span>
+                                    {% else %}
+                                        <span class="badge bg-info text-dark"><i class="bi bi-clock-fill me-1"></i>{{ case.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ case.parties }}</td>
+                                <td>{{ case.date_filed.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {% if case.next_hearing_date %}
+                                        {{ case.next_hearing_date.strftime('%Y-%m-%d %H:%M') }}
+                                    {% else %}
+                                        <span class="text-muted">Not set</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ case.handled_by }}</td>
+                                <td>
+                                    <a href="{{ url_for('edit_case', case_id=case.id) }}" class="btn btn-sm btn-warning edit-btn"><i class="bi bi-pencil-square"></i> Edit</a>
+                                </td>
+                            </tr>
+                            
+                            <tr class="detail-row">
+                                <td colspan="9" class="p-0">
+                                    <div class="collapse" id="detail-{{ case.id }}">
+                                        <div class="detail-content row g-4">
+                                            
+                                            <div class="col-12 col-lg-6">
+                                                <h6 class="text-primary fw-bold mb-3"><i class="bi bi-info-circle-fill me-1"></i>Case Summary & Status History</h6>
+                                                <p class="mb-1 small"><strong>Department:</strong> {{ case.department or 'N/A' }}</p>
+                                                <p class="mb-1 small"><strong>Records:</strong> {{ case.records or 'N/A' }}</p>
+                                                <p class="mb-3 small"><strong>Description:</strong> {{ case.descriptions or 'None provided.' }}</p>
+
+                                                <div class="timeline">
+                                                    </div>
+                                            </div>
+
+                                            <div class="col-12 col-lg-6">
+                                                <h6 class="text-primary fw-bold mb-3"><i class="bi bi-gear-fill me-1"></i>Actions & Documents</h6>
+                                                
+                                                <div class="mb-4">
+                                                    <p class="fw-bold mb-1">Uploaded Documents ({{ case.documents|length }})</p>
+                                                    <div class="doc-list border p-2 rounded bg-white">
+                                                        {% for doc in case.documents %}
+                                                            <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="text-decoration-none text-dark d-block"><i class="bi bi-file-earmark-arrow-down-fill me-1 text-success"></i>{{ doc.filename }}</a>
+                                                        {% else %}
+                                                            <span class="text-muted small">No documents uploaded yet.</span>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-4">
+                                                    <p class="fw-bold mb-2">Upload Document</p>
+                                                    <form method="POST" action="{{ url_for('upload_document', case_id=case.id) }}" enctype="multipart/form-data">
+                                                        <div class="input-group input-group-sm">
+                                                            <input type="file" name="file" class="form-control" required>
+                                                            <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i></button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+
+                                                <div class="mb-4">
+                                                    <p class="fw-bold mb-2">Update Next Hearing</p>
+                                                    <form method="POST" action="{{ url_for('update_hearing', case_id=case.id) }}">
+                                                        <div class="input-group input-group-sm">
+                                                            <input type="datetime-local" name="next_hearing_date" class="form-control" required value="{{ case.next_hearing_date.strftime('%Y-%m-%dT%H:%M') if case.next_hearing_date else '' }}">
+                                                            <button type="submit" class="btn btn-outline-primary">Set</button>
+                                                        </div>
+                                                    </form>
+                                                    <p class="small mt-2 text-muted">
+                                                        <b>Venue:</b> {% if case.hearing_mode == 'Virtual' and case.court_link %}
+                                                            <span class="badge bg-info"><a href="{{ case.court_link }}" target="_blank" class="text-white text-decoration-none"><i class="bi bi-camera-video-fill"></i> Virtual Link</a></span>
+                                                        {% elif case.hearing_mode == 'Physical' and case.department %}
+                                                            <span class="badge bg-secondary">{{ case.department }} 
+                                                            <a href="https://www.google.com/maps/search/?api=1&query={{ case.department | urlencode }}" target="_blank" class="text-white text-decoration-none ms-1"><i class="bi bi-geo-alt-fill"></i> Map</a></span>
+                                                        {% else %}
+                                                            N/A
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center mt-3"><i class="bi bi-info-circle-fill me-2"></i>No cases have been filed yet.</div>
+            {% endif %}
+
+            <div class="content-section">
+                <h4 class="fs-5 text-center mb-4 text-primary fw-bold"><i class="bi bi-calendar-range-fill me-2"></i>Bulk Schedule Hearings</h4>
+                <form method="POST" action="{{ url_for('bulk_schedule') }}">
+                    <div class="table-responsive"> 
+                        <table class="table table-bordered table-hover small bulk-schedule-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 50px;">Select</th>
+                                    <th>Case Number</th>
+                                    <th>Type</th>
+                                    <th>Next Hearing</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for case in cases %}
+                                <tr>
+                                    <td><input type="checkbox" name="case_ids" value="{{ case.id }}"></td>
+                                    <td class="fw-bold">{{ case.case_number }}</td>
+                                    <td>{{ case.case_type }}</td>
+                                    <td>{{ case.next_hearing_date.strftime('%Y-%m-%d %H:%M') if case.next_hearing_date else '—' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row g-3 align-items-end mt-3">
+                        <div class="col-12 col-md-6">
+                            <label for="bulk_date" class="form-label fw-bold text-primary">Set Hearing Date for Selected Cases</label>
+                            <input type="datetime-local" name="bulk_date" class="form-control" required>
+                        </div>
+                        <div class="col-12 col-md-6 text-md-start text-center">
+                            <button type="submit" class="btn btn-primary w-100 w-md-auto mt-2 mt-md-0"><i class="bi bi-calendar-plus-fill me-1"></i>Schedule Hearings</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="row gy-4">
+                    <div class="col-md-4">
+                        <h5 class="fw-bold mb-3">Kilifi Legal Portal</h5>
+                        <p class="small text-light">
+                            Connecting justice and innovation — your trusted digital legal platform in Kilifi County.
+                        </p>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-3">Quick Links</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#">Dashboard</a></li>
+                            <li><a href="#">Legal Services</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-3">Contact Information</h6>
+                        <p class="small mb-1">
+                            <i class="bi bi-envelope-fill me-2"></i>Email: 
+                            <a href="mailto:support@kilifilegal.com">support@kilifilegal.com</a>
+                        </p>
+                        <p class="small mb-1">
+                            <i class="bi bi-phone-fill me-2"></i>Phone: +254 700 333 444
+                        </p>
+                        <p class="small">
+                            <i class="bi bi-geo-alt-fill me-2"></i>Address: Kilifi Plaza, 3rd Floor — Beside Equity Bank
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="my-4 border-light opacity-25">
+
+                <div class="text-center small text-light">
+                    <p class="mb-0">© 2025 Kilifi Legal Portal. All Rights Reserved.</p>
+                    <a href="#" class="text-light text-decoration-none me-2">Privacy Policy</a> |
+                    <a href="#" class="text-light text-decoration-none ms-2">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
+        </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // === SIDEBAR TOGGLE LOGIC ===
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const desktopBreakpoint = 768; 
+
+        function toggleSidebar() {
+            const isMobile = window.innerWidth < desktopBreakpoint;
+            
+            if (isMobile) {
+                const isOpen = sidebar.classList.toggle('mobile-open');
+                mobileOverlay.classList.toggle('active');
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+                sidebarToggle.querySelector('i').className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+            } else {
+                const isCollapsed = sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                sidebarToggle.querySelector('i').className = 'bi bi-list';
+            }
+        }
+
+        function initializeLayout() {
+             const isMobile = window.innerWidth < desktopBreakpoint;
+             if (isMobile) {
+                 sidebar.classList.remove('collapsed');
+                 mainContent.classList.remove('expanded');
+                 sidebar.classList.remove('mobile-open');
+                 mobileOverlay.classList.remove('active');
+                 document.body.style.overflow = '';
+                 sidebarToggle.querySelector('i').className = 'bi bi-list'; 
+             } else {
+                 if (!sidebar.classList.contains('collapsed')) {
+                     mainContent.style.marginLeft = 'var(--sidebar-expanded-width)';
+                 }
+                 mobileOverlay.classList.remove('active');
+                 sidebar.classList.remove('mobile-open'); 
+                 document.body.style.overflow = ''; 
+                 sidebarToggle.querySelector('i').className = 'bi bi-list';
+             }
+        }
+
+        if(sidebarToggle) { sidebarToggle.addEventListener('click', toggleSidebar); }
+        if(mobileOverlay) { mobileOverlay.addEventListener('click', toggleSidebar); }
+        
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(initializeLayout, 200);
+        });
+        
+        window.addEventListener('load', initializeLayout);
+
+
+        // === TABLE INTERACTION LOGIC (FINAL FIXES APPLIED) ===
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // 1. Isolate the click to the '+' column, and ensure icon toggles correctly
+            document.querySelectorAll('.expand-toggle').forEach(function (toggle) {
+                const targetId = toggle.getAttribute('data-bs-target');
+                const targetElement = document.querySelector(targetId);
+                const icon = toggle.querySelector('.toggle-icon');
+
+                // Click listener to manually trigger Bootstrap Collapse instance
+                toggle.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    // Get or create the instance and toggle its state
+                    var collapse = bootstrap.Collapse.getOrCreateInstance(targetElement, { toggle: false });
+                    collapse.toggle();
+                });
+
+                // Update icon when the collapse state changes
+                targetElement.addEventListener('shown.bs.collapse', function () {
+                    icon.classList.remove('bi-plus-circle-fill');
+                    icon.classList.add('bi-dash-circle-fill');
+                });
+
+                targetElement.addEventListener('hidden.bs.collapse', function () {
+                    icon.classList.remove('bi-dash-circle-fill');
+                    icon.classList.add('bi-plus-circle-fill');
+                });
+            });
+
+            // 2. Fix for Edit Button (Prevent row expansion when clicking the button)
+            document.querySelectorAll('.edit-btn').forEach(function(editBtn) {
+                editBtn.addEventListener('click', function(event) {
+                    // This is essential to stop the event from bubbling up and hitting the row's click listener.
+                    event.stopPropagation(); 
+                });
+            });
+        });
+    </script>
+</body>
+</html>

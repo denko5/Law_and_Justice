@@ -1,0 +1,100 @@
+{% extends "base.html" %} 
+
+{% block title %}Visitor/Delivery Log In{% endblock %}
+
+{% block content %}
+<div class="container container-lg my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-white pt-4 pb-2" style="border-bottom: 1px solid #e9ecef;">
+                    <h2 class="h4 section-title text-center mb-0" style="color: var(--kilifi-blue);">
+                        <i class="bi bi-person-lines-fill me-2"></i> Visitor & Delivery Sign-In
+                    </h2>
+                    <p class="text-center text-muted mt-2 mb-0" style="font-size: 0.9rem;">Record all entries for visitors, meetings, and supplies.</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="mb-4">
+                                {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" style="font-size: 0.9rem;">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('visitor_log_in') }}">
+                        <div class="row g-4">
+                            
+                            <h4 class="text-secondary mt-0 mb-3 h6"><i class="bi bi-person-fill me-2"></i> Personal Details</h4>
+                            <div class="col-md-4">
+                                <label for="visitor_name" class="form-label fw-bold" style="font-size: 0.85rem;">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="visitor_name" name="visitor_name" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="id_number" class="form-label fw-bold" style="font-size: 0.85rem;">ID/Passport No.</label>
+                                <input type="text" class="form-control form-control-sm" id="id_number" name="id_number">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="phone_number" class="form-label fw-bold" style="font-size: 0.85rem;">Phone Number</label>
+                                <input type="tel" class="form-control form-control-sm" id="phone_number" name="phone_number">
+                            </div>
+
+                            <div class="col-12">
+                                <hr class="mt-4 mb-4">
+                            </div>
+
+                            <h4 class="text-secondary mt-0 mb-3 h6"><i class="bi bi-briefcase-fill me-2"></i> Visit Purpose</h4>
+
+                            <div class="col-md-4">
+                                <label for="purpose_category" class="form-label fw-bold" style="font-size: 0.85rem;">Purpose Category <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="purpose_category" name="purpose_category" required>
+                                    <option value="" disabled selected>Select Category...</option>
+                                    <option value="Official Meeting">Official Meeting</option>
+                                    <option value="Personal Case">Personal Case Inquiry</option>
+                                    <option value="Delivery/Supplies">Delivery/Supplies Drop-off</option>
+                                    <option value="Appointment">Scheduled Appointment</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <label for="person_to_see" class="form-label fw-bold" style="font-size: 0.85rem;">Officer/Section to Visit <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="person_to_see" name="person_to_see" required placeholder="E.g., County Attorney, Deputy Governor, Records Section...">
+                            </div>
+
+                            <div class="col-12">
+                                <label for="reason" class="form-label fw-bold" style="font-size: 0.85rem;">Detailed Reason / Supplies Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control form-control-sm" id="reason" name="reason" rows="3" required placeholder="E.g., Follow-up on case #1234, Delivery of stationery from XYZ Company."></textarea>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="remarks" class="form-label fw-bold" style="font-size: 0.85rem;">Remarks (Internal Notes)</label>
+                                <textarea class="form-control form-control-sm" id="remarks" name="remarks" rows="2" placeholder="Add any additional notes."></textarea>
+                            </div>
+                            
+                            <div class="col-12 text-center mt-5">
+                                <button type="submit" class="btn btn-primary btn-sm mx-2" style="background-color: var(--kilifi-blue); border-color: var(--kilifi-blue); min-width: 150px;">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Log Visitor In
+                                </button>
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-2" style="min-width: 150px;">
+                                    <i class="bi bi-x-circle me-1"></i> Cancel
+                                </a>
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

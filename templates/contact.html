@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Support - Kilifi Legal Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <style>
+        /* Consistent Styling from Previous Pages */
+        body {
+            background-color: #f8f9fa;
+            font-size: 1rem;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background-color: #0d3c75 !important; /* Primary Blue */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #fff !important;
+        }
+        .nav-link {
+            color: #ffffff !important;
+        }
+        .nav-link:hover, .nav-item .active a.nav-link {
+            color: #ffc107 !important;
+        }
+
+        /* Page Header */
+        .page-header {
+            background-color: #e9f1ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        /* Contact Section */
+        .contact-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+        
+        .btn-primary-custom {
+            background-color: #0d3c75;
+            border-color: #0d3c75;
+            transition: background-color 0.3s ease;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+        .btn-primary-custom:hover {
+            background-color: #0a305e;
+            border-color: #0a305e;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #0d3c75 !important;
+            color: #f8f9fa;
+        }
+        footer h6 {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        footer a {
+            color: #ffc107; /* Highlighted links */
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .footer-link-list li {
+            list-style: none;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}"><i class="bi bi-person-workspace me-2"></i>Kilifi Legal Portal</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}"><i class="bi bi-house-door-fill me-1"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('my_cases') }}"><i class="bi bi-briefcase-fill me-1"></i>My Cases</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('documents') }}"><i class="bi bi-folder-fill me-1"></i>Documents</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}"><i class="bi bi-person-fill me-1"></i>Profile</a></li>
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ url_for('contact') }}"><i class="bi bi-headset me-1"></i>Contact</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-1"></i>Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container page-header">
+    <h2 class="fw-bold text-dark"><i class="bi bi-person-lines-fill me-2"></i>Dedicated Support Center</h2>
+    <p class="text-muted">Use the form below to send a message to our helpdesk regarding any issues or inquiries.</p>
+</div>
+
+<div class="container mt-4 mb-5">
+    <div class="card contact-card mx-auto" style="max-width: 700px;">
+        <h4 class="text-primary mb-4 text-center"><i class="bi bi-send-fill me-2"></i>Send a Support Message</h4>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'primary' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('contact') }}">
+            <div class="mb-3">
+                <label for="subject" class="form-label fw-medium">Subject</label>
+                <input type="text" name="subject" id="subject" class="form-control" placeholder="e.g., Portal Login Issue or Case Status Query" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="message" class="form-label fw-medium">Your Detailed Message</label>
+                <textarea name="message" id="message" rows="7" class="form-control" placeholder="Please describe your issue, including any relevant case numbers or error codes." required></textarea>
+            </div>
+            
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary-custom"><i class="bi bi-chat-right-dots-fill me-2"></i>Send Message to Helpdesk</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer class="mt-auto pt-4 pb-3 small">
+    <div class="container">
+        <div class="row gy-3 text-center text-md-start">
+            
+            <div class="col-12 col-md-4">
+                <h6 class="text-uppercase fw-bold mb-2"><i class="bi bi-headset me-1"></i> Technical Support</h6>
+                <ul class="p-0 footer-link-list">
+                    <li><i class="bi bi-telephone-fill me-2"></i><a href="tel:+254700333444">+254 700 333 444</a></li>
+                    <li><i class="bi bi-envelope-fill me-2"></i><a href="mailto:support@kilifilegal.com">support@kilifilegal.com</a></li>
+                    <li class="small mt-2 text-muted">For portal errors or login issues.</li>
+                </ul>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <h6 class="text-uppercase fw-bold mb-2"><i class="bi bi-briefcase-fill me-1"></i> Legal Inquiries</h6>
+                <ul class="p-0 footer-link-list">
+                    <li><i class="bi bi-telephone-fill me-2"></i><a href="tel:+254700111222">+254 700 111 222</a></li>
+                    <li><i class="bi bi-envelope-fill me-2"></i><a href="mailto:legal@kilifilegal.com">legal@kilifilegal.com</a></li>
+                    <li class="small mt-2 text-muted">For case progress or legal advice.</li>
+                </ul>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <h6 class="text-uppercase fw-bold mb-2"><i class="bi bi-geo-alt-fill me-1"></i> Office Location</h6>
+                <ul class="p-0 footer-link-list">
+                    <li>📍 Kilifi Plaza, 3rd Floor</li>
+                    <li>County Attorney's Office</li>
+                    <li class="mt-2 fw-bold">Operating Hours:</li>
+                    <li>Mon - Fri, 8:00 AM - 5:00 PM</li>
+                </ul>
+            </div>
+            
+        </div>
+        
+        <hr class="border-light my-3">
+        
+        <div class="text-center">
+            <p class="mb-1">&copy; 2025 Kilifi Legal Portal. All rights reserved.</p>
+            <p>
+                <a href="#" class="text-decoration-none">Privacy Policy</a> |
+                <a href="#" class="ms-1 text-decoration-none">Terms of Service</a>
+            </p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

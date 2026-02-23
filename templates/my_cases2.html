@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Cases - Kilifi Legal Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-size: 1rem;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background-color: #0d3c75 !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .navbar-brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px; /* Changed to match Dashboard page style */
+            margin-right: 8px;
+            border: none;
+        }
+
+        .nav-link {
+            color: #ffffff !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #ffc107 !important;
+        }
+
+        /* Page Header */
+        .page-header {
+            background-color: #e9f1ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Forms and Buttons */
+        .form-control, .form-select, .btn {
+            border-radius: 8px; /* Slight reduction for modern look */
+        }
+        .btn-outline-primary {
+            color: #0d3c75;
+            border-color: #0d3c75;
+        }
+        .btn-outline-primary:hover {
+            background-color: #0d3c75;
+            color: white;
+        }
+
+        /* Tables */
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: white;
+            border-collapse: separate;
+        }
+
+        .table thead {
+            background-color: #0d3c75;
+            color: white;
+        }
+
+        /* Main row styling */
+        .case-row {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .case-row:hover {
+            background-color: #f0f4f8 !important;
+        }
+        
+        /* Detail row styling */
+        .detail-row td {
+            padding: 0 !important;
+            border-top: none;
+        }
+        
+        .detail-content {
+            padding: 15px 20px;
+            background-color: #f6f8fa;
+            border-radius: 0 0 12px 12px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+
+        .timeline {
+            border-left: 3px solid #0d6efd;
+            padding-left: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .timeline-entry {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-entry i {
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        .timeline-entry time {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-left: 0.25rem;
+        }
+        
+        .doc-list a {
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        footer {
+            background-color: #0d3c75 !important;
+        }
+
+        @media (max-width: 768px) {
+            .filter-section .col-md-2, .filter-section .col-md-3 {
+                margin-bottom: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='case management.jpeg') }}" alt="Kilifi Legal Logo">
+                Kilifi Legal Portal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('welcome') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('my_cases') }}">My Cases</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('documents') }}">Documents</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Account
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('contact') }}"><i class="bi bi-headset me-2"></i>Contact Support</a></li>
+                            {% if current_user.role == 'admin' %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_messages') }}"><i class="bi bi-shield-lock-fill me-2"></i>Admin Messages</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container page-header text-center">
+        <h2 class="fw-bold text-dark"><i class="bi bi-briefcase-fill me-2"></i>Filed Cases</h2>
+        <p class="text-muted">View, filter, and manage your legal cases with ease</p>
+        <a href="{{ url_for('add_case') }}" class="btn btn-success mt-2"><i class="bi bi-plus-circle-fill me-2"></i>Add New Case</a>
+    </div>
+
+    <div class="container mt-4 filter-section">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-12 col-md-2"><input type="text" name="search" class="form-control" placeholder="Case Number/ID"></div>
+            <div class="col-12 col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Ongoing">Ongoing</option>
+                    <option value="Paused">Paused</option>
+                    <option value="Resumed">Resumed</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2"><input type="text" name="handled_by" class="form-control" placeholder="Handled By (Attorney)"></div>
+            <div class="col-12 col-md-2"><input type="text" name="case_type" class="form-control" placeholder="Case Type"></div>
+            <div class="col-12 col-md-2"><input type="date" name="date_filed" class="form-control"></div>
+            <div class="col-12 col-md-2"><button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel-fill me-1"></i>Filter Cases</button></div>
+        </form>
+
+        <div class="row mt-3 g-2">
+            <div class="col-12 col-md-3"><a href="{{ url_for('export_pdf') }}" class="btn btn-outline-danger w-100"><i class="bi bi-file-pdf-fill me-1"></i>Export PDF</a></div>
+            <div class="col-12 col-md-3"><a href="{{ url_for('export_excel') }}" class="btn btn-outline-success w-100"><i class="bi bi-file-excel-fill me-1"></i>Export Excel</a></div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        {% if cases %}
+        <div class="table-responsive">
+            <table class="table table-hover shadow-sm">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Details</th>
+                        <th>Case Number</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Parties</th>
+                        <th>Date Filed</th>
+                        <th>Next Hearing</th>
+                        <th>Handled By</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for case in cases %}
+                    <tr class="case-row" data-bs-toggle="collapse" data-bs-target="#detail-{{ case.id }}" aria-expanded="false" aria-controls="detail-{{ case.id }}">
+                        <td class="text-center"><i class="bi bi-plus-circle-fill text-primary toggle-icon"></i></td>
+                        <td class="fw-bold">{{ case.case_number }}</td>
+                        <td>{{ case.case_type }}</td>
+                        <td>
+                            {% if case.status == 'Closed' %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{{ case.status }}</span>
+                            {% elif case.status == 'Paused' %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-pause-circle me-1"></i>{{ case.status }}</span>
+                            {% else %}
+                                <span class="badge bg-info text-dark"><i class="bi bi-clock-fill me-1"></i>{{ case.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ case.parties }}</td>
+                        <td>{{ case.date_filed.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if case.next_hearing_date %}
+                                {{ case.next_hearing_date.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ case.handled_by }}</td>
+                        <td><a href="{{ url_for('edit_case', case_id=case.id) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a></td>
+                    </tr>
+                    
+                    <tr class="detail-row">
+                        <td colspan="9" class="p-0">
+                            <div class="collapse" id="detail-{{ case.id }}">
+                                <div class="detail-content row g-4">
+                                    
+                                    <div class="col-12 col-lg-6">
+                                        <h6 class="text-primary fw-bold mb-3"><i class="bi bi-info-circle-fill me-1"></i>Case Summary & Status History</h6>
+                                        <p class="mb-1 small"><strong>Department:</strong> {{ case.department or 'N/A' }}</p>
+                                        <p class="mb-1 small"><strong>Records:</strong> {{ case.records or 'N/A' }}</p>
+                                        <p class="mb-3 small"><strong>Description:</strong> {{ case.descriptions or 'None provided.' }}</p>
+
+                                        <div class="timeline">
+                                            <div class="timeline-entry">
+                                                <i class="bi bi-calendar-plus text-primary"></i>
+                                                <strong>Filed:</strong> <time>{{ case.date_filed.strftime('%Y-%m-%d') }}</time>
+                                            </div>
+                                            {% if case.date_paused %}
+                                            <div class="timeline-entry">
+                                                <i class="bi bi-pause-circle text-warning"></i>
+                                                <strong>Paused:</strong> <time>{{ case.date_paused.strftime('%Y-%m-%d') }}</time>
+                                            </div>
+                                            {% endif %}
+                                            {% if case.date_resumed %}
+                                            <div class="timeline-entry">
+                                                <i class="bi bi-play-circle text-success"></i>
+                                                <strong>Resumed:</strong> <time>{{ case.date_resumed.strftime('%Y-%m-%d') }}</time>
+                                            </div>
+                                            {% endif %}
+                                            {% if case.date_closed %}
+                                            <div class="timeline-entry">
+                                                <i class="bi bi-check-circle text-danger"></i>
+                                                <strong>Closed:</strong> <time>{{ case.date_closed.strftime('%Y-%m-%d') }}</time>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        
+                                        <h6 class="text-primary fw-bold mb-3"><i class="bi bi-gear-fill me-1"></i>Actions & Documents</h6>
+                                        
+                                        <div class="mb-4">
+                                            <p class="fw-bold mb-1">Uploaded Documents ({{ case.documents|length }})</p>
+                                            <div class="doc-list border p-2 rounded bg-white">
+                                                {% for doc in case.documents %}
+                                                    <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="text-decoration-none text-dark"><i class="bi bi-file-earmark-arrow-down-fill me-1 text-success"></i>{{ doc.filename }}</a>
+                                                {% else %}
+                                                    <span class="text-muted small">No documents uploaded yet.</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <p class="fw-bold mb-2">Upload Document</p>
+                                            <form method="POST" action="{{ url_for('upload_document', case_id=case.id) }}" enctype="multipart/form-data">
+                                                <div class="input-group input-group-sm">
+                                                    <input type="file" name="file" class="form-control" required>
+                                                    <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i></button>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <p class="fw-bold mb-2">Update Next Hearing</p>
+                                            <form method="POST" action="{{ url_for('update_hearing', case_id=case.id) }}">
+                                                <div class="input-group input-group-sm">
+                                                    <input type="datetime-local" name="next_hearing_date" class="form-control" required value="{{ case.next_hearing_date.strftime('%Y-%m-%dT%H:%M') if case.next_hearing_date else '' }}">
+                                                    <button type="submit" class="btn btn-outline-primary">Set</button>
+                                                </div>
+                                            </form>
+                                            <p class="small mt-2 text-muted">
+                                                <b>Venue:</b> {% if case.hearing_mode == 'Virtual' and case.court_link %}
+                                                    <span class="badge bg-info"><a href="{{ case.court_link }}" target="_blank" class="text-white text-decoration-none"><i class="bi bi-camera-video-fill"></i> Virtual Link</a></span>
+                                                {% elif case.hearing_mode == 'Physical' and case.department %}
+                                                    <span class="badge bg-secondary">{{ case.department }} 
+                                                    <a href="https://www.google.com/maps/search/?api=1&query={{ case.department | urlencode }}" target="_blank" class="text-white text-decoration-none ms-1"><i class="bi bi-geo-alt-fill"></i> Map</a></span>
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center mt-3"><i class="bi bi-info-circle-fill me-2"></i>No cases have been filed yet.</div>
+        {% endif %}
+    </div>
+
+    <div class="container mt-5 mb-5 border p-4 bg-white shadow-sm rounded-3">
+        <h4 class="fs-5 text-center mb-3 text-primary"><i class="bi bi-calendar-range-fill me-2"></i>Bulk Schedule Hearings</h4>
+        <form method="POST" action="{{ url_for('bulk_schedule') }}">
+            <div class="table-responsive mb-3">
+                <table class="table table-bordered table-hover small">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 50px;">Select</th>
+                            <th>Case Number</th>
+                            <th>Type</th>
+                            <th>Next Hearing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for case in cases %}
+                        <tr>
+                            <td><input type="checkbox" name="case_ids" value="{{ case.id }}"></td>
+                            <td>{{ case.case_number }}</td>
+                            <td>{{ case.case_type }}</td>
+                            <td>{{ case.next_hearing_date.strftime('%Y-%m-%d %H:%M') if case.next_hearing_date else '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-6">
+                    <label for="bulk_date" class="form-label fw-bold">Set Hearing Date for Selected Cases</label>
+                    <input type="datetime-local" name="bulk_date" class="form-control" required>
+                </div>
+                <div class="col-12 col-md-6 text-md-start text-center">
+                    <button type="submit" class="btn btn-primary w-100 w-md-auto mt-2 mt-md-0"><i class="bi bi-calendar-plus-fill me-1"></i>Schedule Hearings</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <footer class="text-white mt-auto pt-3 pb-2 small" style="font-size: 0.85rem;">
+        <div class="container">
+            <div class="row gy-2 text-center text-md-start">
+                <div class="col-12 col-md-4">
+                    <h6 class="text-uppercase fw-bold mb-2">Legal Support</h6>
+                    <p><i class="bi bi-telephone-fill me-1"></i>+254 700 111 222</p>
+                    <p><i class="bi bi-envelope-fill me-1"></i>legal@kilifilegal.com</p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <h6 class="text-uppercase fw-bold mb-2">Technical Support</h6>
+                    <p><i class="bi bi-telephone-fill me-1"></i>+254 700 333 444</p>
+                    <p><i class="bi bi-envelope-fill me-1"></i>support@kilifilegal.com</p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <h6 class="text-uppercase fw-bold mb-2">Office Location</h6>
+                    <p>📍 Kilifi Plaza, 3rd Floor</p>
+                    <p>Beside Equity Bank, Kilifi Town</p>
+                </div>
+            </div>
+
+            <hr class="border-light my-3">
+            <div class="text-center">
+                <p class="mb-1">© 2025 Kilifi Legal Portal. All rights reserved.</p>
+                <p><a href="#" class="text-white text-decoration-none">Privacy Policy</a> | <a href="#" class="text-white text-decoration-none">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to toggle the icon on row click
+            var caseRows = document.querySelectorAll('.case-row');
+            caseRows.forEach(function (row) {
+                row.addEventListener('click', function () {
+                    var icon = this.querySelector('.toggle-icon');
+                    var targetId = this.getAttribute('data-bs-target');
+                    var targetElement = document.querySelector(targetId);
+
+                    // Wait for the collapse state to change
+                    targetElement.addEventListener('hidden.bs.collapse', function () {
+                        icon.classList.remove('bi-dash-circle-fill');
+                        icon.classList.add('bi-plus-circle-fill');
+                    }, { once: true });
+
+                    targetElement.addEventListener('shown.bs.collapse', function () {
+                        icon.classList.remove('bi-plus-circle-fill');
+                        icon.classList.add('bi-dash-circle-fill');
+                    }, { once: true });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

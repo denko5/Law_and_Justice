@@ -1,0 +1,82 @@
+{% extends "base.html" %} 
+
+{% block title %}User Management (Admin){% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5">
+    <h1 class="h3 mb-4" style="color: var(--kilifi-blue);"><i class="bi bi-people-fill me-2"></i> User Management</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-4">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} small" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">All System Users</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-hover mb-0 small align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Current Role</th>
+                            <th>Change Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.role == 'pending' %}
+                                    <span class="badge text-bg-warning">Pending Approval</span>
+                                {% elif user.role == 'it_admin' or user.role == 'admin' %}
+                                    <span class="badge text-bg-danger">{{ user.role.capitalize() }}</span>
+                                {% else %}
+                                    <span class="badge text-bg-success">{{ user.role.capitalize() }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('update_user_role', user_id=user.id) }}" class="d-flex">
+                                    <select name="role" class="form-select form-select-sm me-2" required>
+                                        {% for role in available_roles %}
+                                            <option value="{{ role }}" {% if user.role == role %}selected{% endif %}>
+                                                {{ role.replace('_', ' ').title() }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm" {% if user.id == current_user.id %}disabled{% endif %}>Update</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" onsubmit="return confirm('WARNING: Are you sure you want to delete user {{ user.username }}? This action cannot be undone.');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" {% if user.id == current_user.id %}disabled{% endif %}>
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %} 
+{% block title %}Visitor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5" style="font-size: 0.9rem;">
+    <h1 class="mb-4 h3" style="color: var(--kilifi-blue);"><i class="bi bi-journal-check me-2"></i> Visitor & Delivery Dashboard</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-4">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <div class="card text-bg-primary h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="h6 card-title text-uppercase mb-1">Today's Visitors</div>
+                    <div class="h2 mb-0">{{ stats.today_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-bg-warning h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="h6 card-title text-uppercase mb-1">Last 7 Days</div>
+                    <div class="h2 mb-0">{{ stats.week_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-bg-info h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="h6 card-title text-uppercase mb-1">This Month</div>
+                    <div class="h2 mb-0">{{ stats.month_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-bg-success h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="h6 card-title text-uppercase mb-1">Total This Year</div>
+                    <div class="h2 mb-0">{{ stats.year_count }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-lg-12 d-flex justify-content-start">
+            <a href="{{ url_for('visitor_log_in') }}" class="btn btn-primary shadow-sm me-3" style="background-color: var(--kilifi-blue); border-color: var(--kilifi-blue);">
+                <i class="bi bi-person-plus-fill me-2"></i> New Log In
+            </a>
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-download me-1"></i> Export Data
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('export_visitors_excel') }}"><i class="bi bi-file-earmark-excel me-1"></i> Export All to Excel</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('export_visitors_pdf') }}"><i class="bi bi-file-earmark-pdf me-1"></i> Export All to PDF</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-warning-subtle text-dark">
+            <h4 class="h6 mb-0"><i class="bi bi-door-open-fill me-2"></i> Active Visitors ({{ active_logs|length }})</h4>
+        </div>
+        <div class="card-body p-0">
+            {% if active_logs %}
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-hover mb-0 align-middle small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name & ID</th>
+                            <th>Contact</th>
+                            <th>Purpose Category</th>
+                            <th>Officer/Section</th>
+                            <th>Reason / Details</th>
+                            <th>Time In</th>
+                            <th>Duration</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in active_logs %}
+                        <tr>
+                            <td>
+                                <strong>{{ log.visitor_name }}</strong><br>
+                                <span class="text-muted">{{ log.id_number or 'N/A' }}</span>
+                            </td>
+                            <td>{{ log.phone_number or 'N/A' }}</td>
+                            <td><span class="badge text-bg-secondary">{{ log.purpose_category }}</span></td>
+                            <td>{{ log.person_to_see }}</td>
+                            <td>
+                                <p class="text-truncate my-1" style="max-width: 300px;">{{ log.reason }}</p>
+                                {% if log.remarks %}<small class="fst-italic text-muted">Remarks: {{ log.remarks }}</small>{% endif %}
+                            </td>
+                            <td>{{ log.time_in.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% set duration = now - log.time_in %}
+                                {% set hours = duration.seconds // 3600 %}
+                                {% set minutes = (duration.seconds % 3600) // 60 %}
+                                <span class="badge text-bg-info">{{ hours }}h {{ minutes }}m</span>
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('visitor_log_out', log_id=log.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Confirm sign-out for {{ log.visitor_name }}?');">
+                                        <i class="bi bi-box-arrow-right"></i> Sign Out
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="p-3 text-center text-muted small">No visitors or deliveries are currently logged as active.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h4 class="h6 mb-0 text-muted"><i class="bi bi-clock-history me-2"></i> Recently Signed Out Logs</h4>
+        </div>
+        <div class="card-body p-0">
+            {% if closed_logs %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0 small">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Visitor</th>
+                            <th>Officer/Section</th>
+                            <th>Purpose</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in closed_logs %}
+                        <tr>
+                            <td>{{ log.visitor_name }}</td>
+                            <td>{{ log.person_to_see }}</td>
+                            <td>{{ log.purpose_category }}</td>
+                            <td>{{ log.time_in.strftime('%H:%M') }}</td>
+                            <td>{{ log.time_out.strftime('%H:%M') if log.time_out else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="p-3 text-center text-muted small">No recent sign-outs available.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

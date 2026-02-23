@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Welcome to Kilifi Legal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        /* ---------- Base ---------- */
+        :root{
+            --kilifi-blue: #0d3c75; /* Primary Brand Blue */
+            --accent: var(--kilifi-blue); 
+            --legal-gold: #ffc107; /* Primary Accent Gold */
+            --muted: #6c757d;
+            --card-bg: #ffffff;
+            --soft-bg: #f3f6fb;
+            --glass: rgba(255,255,255,0.75);
+            --elev-1: 0 6px 18px rgba(12, 34, 63, 0.08);
+        }
+
+        html,body{
+            height:100%;
+            margin:0;
+            /* Professional font stack. 'Segoe UI' or 'system-ui' are clean and common. */
+            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; 
+            background-color: var(--soft-bg);
+            color: #212529;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+        }
+
+        a { text-decoration: none; }
+
+        /* ---------- Fixed Top Logos (New Styling) ---------- */
+        .fixed-logo {
+            position: fixed;
+            top: 15px;
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            z-index: 1050;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            background-color: rgba(255,255,255,0.9);
+            padding: 5px;
+            transition: all 0.2s ease-in-out;
+        }
+        .fixed-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .logo-top-left {
+            left: 15px;
+            border-radius: 8px;
+        }
+        .logo-top-right {
+            right: 15px;
+            border-radius: 50%;
+        }
+
+        /* Responsive adjustments for logos */
+        @media (max-width: 768px) {
+            .fixed-logo {
+                width: 40px;
+                height: 40px;
+                top: 10px;
+                padding: 4px;
+            }
+            .logo-top-left { left: 10px; }
+            .logo-top-right { right: 10px; }
+        }
+
+        /* ---------- Navbar ---------- */
+        .navbar {
+            background-color: var(--kilifi-blue) !important; 
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #fff !important;
+            padding-left: 5px;
+        }
+        .nav-link {
+            color: #ffffff !important;
+            padding: 0.5rem 1rem;
+        }
+        .nav-link:hover {
+            color: var(--legal-gold) !important;
+        }
+
+        /* Navbar buttons */
+        .navbar .btn {
+            font-weight: 600;
+            margin-left: 10px;
+            padding: 6px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .navbar .btn-register-nav {
+            background: var(--legal-gold);
+            color: #000;
+            border: none;
+        }
+        .navbar .btn-register-nav:hover {
+            background: #e6b000;
+            transform: translateY(-1px);
+        }
+        .navbar .btn-login-nav {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        .navbar .btn-login-nav:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Responsive Navbar adjustments */
+        @media (max-width: 991.98px) {
+            .navbar-nav {
+                margin-top: 10px;
+                align-items: flex-start;
+            }
+            .navbar .btn {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 8px;
+                text-align: center;
+            }
+            .navbar-collapse {
+                background-color: var(--kilifi-blue);
+                padding-bottom: 10px;
+            }
+        }
+        
+
+        /* ---------- Hero ---------- */
+        .hero{
+            position:relative;
+            min-height:70vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            text-align:center;
+            padding:3rem 1rem;
+            color: #fff;
+            overflow:hidden;
+        }
+
+        .hero::before{
+            content:"";
+            position:absolute;
+            inset:0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(13, 60, 117, 0.65)); 
+            z-index:1;
+            backdrop-filter: blur(3px);
+        }
+
+        .hero-bg{
+            position:absolute;
+            inset:0;
+            /* Placeholder for dynamic image URL */
+            background-image: url('{{ url_for("static", filename="legal advisory.jpg") }}');
+            background-size:cover;
+            background-position:center;
+            filter: brightness(0.85) saturate(95%);
+            z-index:0;
+            transform: scale(1.03);
+        }
+
+        .hero-content{
+            position:relative;
+            z-index:2;
+            max-width:980px;
+            padding:1.5rem;
+            border-radius:12px;
+            backdrop-filter: blur(2px);
+        }
+
+        .hero h1{
+            font-weight:700;
+            font-size: clamp(2.2rem, 4vw, 3.5rem);
+            margin-bottom:0.5rem;
+            letter-spacing:0.2px;
+            text-shadow: 0 6px 18px rgba(0,0,0,0.35);
+        }
+
+        .hero p.lead{
+            font-size:1.2rem;
+            margin-bottom:1.25rem;
+            opacity:0.95;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        /* ---------- Sections & Titles ---------- */
+        section.section{
+            padding: 3.5rem 1rem;
+            transform: translateY(12px);
+            opacity: 0;
+            transition: all 700ms cubic-bezier(.2,.9,.2,1);
+            position: relative;
+        }
+        section.section.visible{
+            transform: translateY(0);
+            opacity:1;
+        }
+
+        .container-lg {
+            max-width: 1100px;
+        }
+
+        h2.section-title{
+            font-size:1.75rem;
+            font-weight:700;
+            margin-bottom:1rem;
+            letter-spacing:0.2px;
+            color: var(--kilifi-blue);
+        }
+        p.lead-muted{
+            color: var(--muted);
+            margin-bottom:1.75rem;
+            font-size:1.05rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* IMPROVED INTRO PARAGRAPH STYLE - PROFESSIONAL LOOK */
+        .intro-highlight {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--kilifi-blue);
+            background-color: #f7fcff;
+            padding: 1.25rem 2rem;
+            border-radius: 10px;
+            border: 1px solid #cce5ff;
+            border-left: 6px solid var(--legal-gold);
+            margin-bottom: 2rem !important;
+            display: block;
+            max-width: 900px;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+        
+        .intro-highlight strong {
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* BACKGROUND BLUR FOR ABOUT SECTION */
+        #about.section {
+            background-color: transparent !important;
+        }
+
+        #about:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        /* 4x2 GRID BOX STYLES (COLLAPSIBLE) */
+        .practice-box {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(12, 34, 63, 0.05);
+            border: 1px solid #e0e6f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            overflow: hidden;
+            border-top: 4px solid var(--legal-gold);
+            height: 100%;
+        }
+
+        .practice-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(12, 34, 63, 0.1);
+        }
+
+        .practice-header {
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+            transition: background-color 0.2s ease;
+        }
+        
+        .practice-header:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* REFINED HEADER FONT AND SIZE for Appeal */
+        .practice-header h5 {
+            color: var(--kilifi-blue);
+            font-weight: 700; 
+            font-size: 1.25rem;
+            line-height: 1.3;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .practice-header h5 i {
+            color: var(--legal-gold);
+            font-size: 1.75rem;
+            margin-right: 0.85rem;
+        }
+
+        /* Collapse arrow indicator */
+        .practice-header h5:after {
+            content: "\F282"; /* bi-chevron-down */
+            font-family: "bootstrap-icons";
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            font-size: 1rem;
+            color: var(--kilifi-blue);
+        }
+
+        .practice-header[aria-expanded="true"] h5:after {
+            transform: rotate(180deg);
+        }
+
+        .practice-content {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .practice-content p.small {
+            margin-bottom: 0.5rem;
+        }
+        
+        .practice-content ul {
+            padding-left: 1rem;
+            margin-top: 0.75rem;
+            list-style: none;
+        }
+
+        /* REFINED LIST ITEM STYLES for Readability */
+        .practice-content ul li {
+            font-size: 0.95rem;
+            margin-bottom: 0.6rem;
+            color: #343a40;
+            line-height: 1.5;
+        }
+        
+        /* Styling for the strong tag within list items */
+        .practice-content ul li strong {
+            font-weight: 600; 
+            color: var(--kilifi-blue);
+        }
+
+        .practice-content ul li:before {
+            content: "\2713"; /* Checkmark symbol */
+            color: var(--legal-gold);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+
+        /* ---------- Services Cards ---------- */
+        .service-card{
+            background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%); 
+            border-radius:12px;
+            padding:1.5rem;
+            height:100%;
+            box-shadow: 0 8px 26px rgba(13, 38, 74, 0.06);
+            transition: transform .28s ease, box-shadow .28s ease;
+            border-top: 4px solid var(--legal-gold);
+            
+            /* Initial state for sliding animation */
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        .service-card:hover{
+            transform: translateY(-8px);
+            box-shadow: 0 18px 48px rgba(13, 38, 74, 0.12);
+        }
+        .service-card h5{ 
+            margin-bottom:0.5rem; 
+            font-weight:700; 
+            color: var(--kilifi-blue);
+        }
+
+        /* Service Card visibility (Scroll Reveal for cards) */
+        .service-card.slide-up-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.2, 0.5, 0.1, 1);
+        }
+
+        /* Image animations */
+        .service-image {
+            width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            opacity: 1;
+            transform: none;
+            margin-bottom: 1rem;
+        }
+
+        /* Lazy loading class */
+        .lazy-loaded {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: opacity .45s ease, transform .45s ease;
+        }
+
+
+        /* ---------- Testimonials (REFINED for Mobile) ---------- */
+        .section.bg-light{
+            background-color: #f0f4f8 !important;
+        }
+        
+        /* REFINED TESTIMONIAL CARD */
+        .testimonial-card{
+            background: var(--card-bg);
+            border-radius:12px;
+            padding: 3rem 2rem; /* Increased vertical padding */
+            max-width:800px;
+            margin:auto;
+            box-shadow: 0 15px 40px rgba(2,18,40,0.1); /* Stronger but softer shadow */
+            border-top: 4px solid var(--legal-gold); /* Accent moved to top */
+            text-align:center;
+            position: relative;
+        }
+
+        .testimonial-card img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 4px solid #f0f4f8; /* Light border around image */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .testimonial-card p { 
+            color: #343a40; 
+            font-style: italic; 
+            font-size: 1.15rem; /* Slightly larger quote text */
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-card h5{ 
+            color: var(--kilifi-blue); 
+            font-weight: 700;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* REFINED CAROUSEL CONTROLS FIX */
+        .testimonial-carousel .carousel-control-prev,
+        .testimonial-carousel .carousel-control-next {
+            width: 40px; /* Smaller width */
+            height: 40px; /* Smaller height */
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(13, 60, 117, 0.7); /* Deep blue semi-transparent background */
+            border-radius: 50%; /* Circular buttons */
+            opacity: 0.7;
+            transition: opacity 0.3s, background-color 0.3s, transform 0.3s;
+        }
+
+        .testimonial-carousel .carousel-control-prev:hover,
+        .testimonial-carousel .carousel-control-next:hover {
+            opacity: 1;
+            background: var(--kilifi-blue);
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        /* Position for Desktop/Tablet */
+        .testimonial-carousel .carousel-control-prev {
+            left: -30px; 
+        }
+        .testimonial-carousel .carousel-control-next {
+            right: -30px; 
+        }
+
+        /* Use Bootstrap icons directly via CSS content property */
+        .testimonial-carousel .carousel-control-prev:after {
+            content: "\F284"; /* bi-chevron-left */
+            font-family: "bootstrap-icons";
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .testimonial-carousel .carousel-control-next:after {
+            content: "\F285"; /* bi-chevron-right */
+            font-family: "bootstrap-icons";
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        /* Hide the default bulky SVG that was causing the issue */
+        .testimonial-carousel .carousel-control-prev svg,
+        .testimonial-carousel .carousel-control-next svg {
+            display: none; 
+        }
+
+        /* FIX: Responsive adjustment for small screens (Mobile) */
+        @media (max-width: 768px) {
+            .testimonial-carousel .carousel-control-prev {
+                left: 5px; /* Bring button inside on mobile */
+            }
+            .testimonial-carousel .carousel-control-next {
+                right: 5px; /* Bring button inside on mobile */
+            }
+        }
+        
+        /* Footer */
+        footer.site-footer{
+            padding:1.8rem 1rem;
+            text-align:center;
+            color:var(--muted);
+            font-size:0.95rem;
+            background: #ffffff;
+            border-top: 1px solid #e9ecef;
+        }
+        footer.site-footer a {
+            color: var(--kilifi-blue);
+            font-weight: 500;
+        }
+
+        /* Chatbot Button */
+        .chatbot-button {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--legal-gold);
+            color: var(--kilifi-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1100;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.8rem;
+        }
+        .chatbot-button:hover {
+            background-color: #e6b000;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        /* Hide text on small screens */
+        @media (max-width: 576px) {
+            .chatbot-button {
+                width: 50px;
+                height: 50px;
+                bottom: 15px;
+                right: 15px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid container-lg">
+            <a class="navbar-brand" href="#">
+                Kilifi Legal Portal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('login') }}" class="btn btn-login-nav">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('register') }}" class="btn btn-register-nav">
+                            <i class="bi bi-person-plus-fill me-1"></i>Register
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <header class="hero" role="banner" aria-label="Hero">
+        <div class="hero-bg" aria-hidden="true"></div>
+
+        <div class="hero-content container-lg text-center">
+            <h1>Elevating Justice in Kilifi County</h1>
+            <p class="lead">Digitally streamline your case management, access secure legal documents, and communicate efficiently with the County Attorney's Office.</p>
+        </div>
+    </header>
+
+    <section class="section" id="about">
+        <div class="container container-lg text-center">
+            <h2 class="section-title"><i class="bi bi-building-fill me-2"></i>The Office of the County Attorney: Practice Sections</h2>
+            
+            <div class="d-inline-block text-start w-100">
+                <p class="intro-highlight">
+                    The Office of the County Attorney fulfills its mandate, as stipulated under <strong>Section 7 of the Office of the County Attorney Act, No. 14 of 2020</strong>, through eight specialized practice sections/divisions.
+                </p>
+            </div>
+        </div>
+
+        <div class="container container-lg mt-4">
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+
+                <div class="col">
+                    <div class="practice-box">
+                        <div class="practice-header" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            <h5><i class="bi bi-hammer"></i> 1. Dispute Resolution Practice Group/Area</h5>
+                        </div>
+                        <div class="collapse" id="collapseOne">
+                            <div class="practice-content">
+                                <p class="text-muted small">Responsible for carrying out the following functions:</p>
+                                <ul>
+                                    <li>Representing and conducting all <strong>civil and constitutional cases</strong> instituted by and against the County Government.</li>
+                                    <li>Conducting or supervising <strong>Alternative Dispute Resolutions (ADR)</strong> and arbitration proceedings.</li>
+                                    <li>To provide legal expertise on the preparation, formulation, and <strong>litigation of civil cases</strong>.</li>
+                                    <li>Facilitating alternative dispute resolution for community matters and handling public interest litigation.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="practice-box">
+                        <div class="practice-header" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            <h5><i class="bi bi-file-earmark-ruled"></i> 2. Legislative Drafting Practice Group/Area</h5>
+                        </div>
+                        <div class="collapse" id="collapseTwo">
+                            <div class="practice-content">
+                                <p class="text-muted small">Responsible for carrying out the following functions:</p>
+                                <ul>
+                                    <li>Drafting of proposed <strong>Bills</strong>, subsidiary legislation, and notices of appointments.</li>
+                                    <li>Examining and advising on draft Bills and Regulations through participation in meetings or written memoranda.</li>
+                                    <li>Attending to passage of Bills in the County Assembly and assisting in the preparation for assent by the Governor.</li>
+                                    <li>Publication of laws and subsidiary legislations in the Kenya Gazette.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="practice-box">
+                        <div class="practice-header" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            <h5><i class="bi bi-currency-dollar"></i> 3. County Government Transactions Practice Group/Area</h5>
+                        </div>
+                        <div class="collapse" id="collapseThree">
+                            <div class="practice-content">
+                                <p class="text-muted small">Carries out the following functions:</p>
+                                <ul>
+                                    <li>Providing legal advice in negotiation, drafting, and vetting local and international <strong>contracts and MOUs</strong>.</li>
+                                    <li>Advising on <strong>Public Private Partnerships (PPPs)</strong> and project finance for infrastructure projects.</li>
+                                    <li>Undertaking conveyance transactions on behalf of the County Government.</li>
+                                    <li>Co-ordinates the County Attorney’s representation in Boards of County Corporations and Working Groups.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="practice-box">
+                        <div class="practice-header" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            <h5><i class="bi bi-lightbulb-fill"></i> 4. Legal Advisory & Research Services Practice Group/Area</h5>
+                        </div>
+                        <div class="collapse" id="collapseFour">
+                            <div class="practice-content">
+                                <p class="text-muted small">Carries out the following functions:</p>
+                                <ul>
+                                    <li>Providing advisory services on a diverse range of substantive and procedural questions of law.</li>
+                                    <li>Advising the County Government on compliance with legislation and the Constitution.</li>
+                                    <li>Undertaking research for Government Departments on implementation of laws.</li>
+                                    <li>Overseeing the library, coordinating the <strong>pupillage program</strong>, and informing on current legal development.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="practice-box">
+                        <div class="practice-header" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                            <h5><i class="bi bi-gear-fill"></i> 5. County Law Office Development Practice Group/Area</h5>
+                        </div>
+                        <div class="collapse" id="collapseFive">
+                            <div class="practice-content">
+                                <p class="text-muted small">Responsible for coordinating the proper functioning of all Divisions (Administrative & Support):</p>
+                                <ul>
+                                    <li>Manages departmental operations, administrative, and asset management issues.</li>
+                                    <li>Responsible for <strong>Capacity Building</strong> for all officers.</li>
+                                    <li>Comprises crucial support sections: Records, Finance, Accounts, HR, ICT, Internal Audit, Public Complaints, and Supply Chain Management.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="practice-box">
+                        <div class="practice-header" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                            <h5><i class="bi bi-shield-fill-check"></i> 6. Law Enforcement Practice Group/Area</h5>
+                        </div>
+                        <div class="collapse" id="collapseSix">
+                            <div class="practice-content">
+                                <p class="text-muted small">Carries out the following functions:</p>
+                                <ul>
+                                    <li>Conducting and directing <strong>public prosecutions</strong> of breaches of penal provisions in county laws.</li>
+                                    <li>Prosecution and undertaking the enforcement of county laws, in liaison with the Office of the Director of Public Prosecutions (ODPP).</li>
+                                    <li>Conducting training of staff on county laws that have penal consequences.</li>
+                                    <li>Coordinating with county-based stakeholders (Judiciary and NPS) on enforcement of penal laws.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="practice-box">
+                        <div class="practice-header" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                            <h5><i class="bi bi-person-heart"></i> 7. Legal Aid Clinics and Civic Education Practice Group/Area</h5>
+                        </div>
+                        <div class="collapse" id="collapseSeven">
+                            <div class="practice-content">
+                                <p class="text-muted small">Carries out the following functions:</p>
+                                <ul>
+                                    <li>Providing <strong>legal aid, advice, and pro bono services</strong> to the indigent, marginalized, and vulnerable persons.</li>
+                                    <li>Mediation and counseling in family matters and training in self-representation.</li>
+                                    <li>Sensitization of citizens through <strong>public participation</strong> and promotion of legal literacy and awareness.</li>
+                                    <li>Promoting the use of alternative dispute resolution methods that enhance access to justice.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="practice-box">
+                        <div class="practice-header" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                            <h5><i class="bi bi-file-check-fill"></i> 8. Legal Audit and Compliance Practice Group/Area</h5>
+                        </div>
+                        <div class="collapse" id="collapseEight">
+                            <div class="practice-content">
+                                <p class="text-muted small">Carries out the following functions:</p>
+                                <ul>
+                                    <li>Conducting annual trainings for various departments on applicable laws and regulations and ensuring compliance.</li>
+                                    <li>Reviewing the County policies, regulations, procedures, and Laws.</li>
+                                    <li>Assessing the performance of the County Government and its adherence to laws.</li>
+                                    <li>Analyzing internal governance structures to identify <strong>compliance gaps</strong> and improve overall performance.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="services">
+        <div class="container container-lg">
+            <h2 class="section-title text-center"><i class="bi bi-check-square-fill me-2"></i>Core Digital Services</h2>
+            <p class="muted-small text-center">Comprehensive tools designed for citizens, legal officers, and administrators to ensure seamless workflows.</p>
+
+            <div class="row g-4 mt-4">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="service-card h-100" data-delay="0">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="{{ url_for('static', filename='case-filing.png') }}" loading="lazy" class="service-image" alt="Case Filing Graphic" width="600" height="300">
+                        <h5>Case Filing & Intake</h5>
+                        <p>Submit and register new legal cases with structured intake forms and unique reference numbers for easy tracking.</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="service-card h-100" data-delay="100">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="{{ url_for('static', filename='document-upload.jpeg') }}" loading="lazy" class="service-image" alt="Document Upload Graphic" width="600" height="300">
+                        <h5>Secure Document Repository</h5>
+                        <p>Securely upload evidence, legal filings, and correspondence with role-based access controls and full audit trails.</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="service-card h-100" data-delay="200">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="{{ url_for('static', filename='hearing-schedule.jpeg') }}" loading="lazy" class="service-image" alt="Hearing Schedule Graphic" width="600" height="300">
+                        <h5>Hearing & Schedule Tracking</h5>
+                        <p>Easily track upcoming hearings, integrate with your calendar, and receive timely notifications for all relevant stakeholders.</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="service-card h-100" data-delay="300">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="{{ url_for('static', filename='legal-advisory.jpeg') }}" loading="lazy" class="service-image" alt="Legal Advisory Graphic" width="600" height="300">
+                        <h5>Online Legal Advisory</h5>
+                        <p>Access expert advice directly from county officers through a secure messaging channel for personalized case-related queries.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="section bg-light py-5">
+        <div class="container container-lg text-center">
+            <h2 class="section-title"><i class="bi bi-newspaper me-2"></i>Stay Connected</h2>
+            <p class="lead-muted">
+                Sign up for our newsletter to receive the latest updates on legal procedures, policy changes, and important announcements from the County Attorney's office.
+            </p>
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <form class="newsletter-form input-group" action="#" method="POST">
+                        <input type="email" name="email" class="form-control" placeholder="Enter your email address" required aria-label="Email for newsletter signup">
+                        <button type="submit" class="btn btn-primary" style="background-color: var(--kilifi-blue); border-color: var(--kilifi-blue);">
+                            Subscribe <i class="bi bi-send-fill ms-1"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section bg-light">
+        <div class="container container-lg">
+            <h2 class="section-title text-center mb-5"><i class="bi bi-chat-quote-fill me-2"></i>Success Stories & Testimonials</h2>
+
+            <div id="testimonialCarousel" class="carousel slide testimonial-carousel" data-bs-ride="carousel" data-bs-interval="7000" data-bs-pause="hover" aria-label="Testimonials carousel">
+                <div class="carousel-inner">
+
+                    <div class="carousel-item active">
+                        <div class="testimonial-card">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="{{ url_for('static', filename='County Attorney.jpg') }}" loading="lazy" alt="County Attorney" width="92" height="92">
+                            <h5>The County Attorney</h5>
+                            <p>"Kilifi Legal is a game-changer for justice delivery. It brings transparency and essential speed to our legal processes, making us more accountable to the citizens."</p>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="testimonial-card">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="{{ url_for('static', filename='county solicitor.jpeg') }}" loading="lazy" alt="County Solicitor" width="92" height="92">
+                            <h5>County Solicitor</h5>
+                            <p>"This platform empowers our legal officers with the collaborative tools they need to serve the public better and manage complex litigation efficiently."</p>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="testimonial-card">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="{{ url_for('static', filename='rehema.jpg') }}" loading="lazy" alt="Rehema" width="92" height="92">
+                            <h5>Rehema M. – Legal Principal</h5>
+                            <p>"As a legal professional, I find Kilifi Legal intuitive and powerful. It has greatly simplified case tracking and ensured our record keeping is entirely digital and secure."</p>
+                        </div>
+                    </div>
+
+                </div> 
+                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev" aria-label="Previous testimonial"></button>
+                <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next" aria-label="Next testimonial"></button>
+
+            </div> 
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container container-lg">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-md-start mb-2 mb-md-0">
+                    <small>&copy; 2025 Kilifi Legal — Office of the County Attorney. All rights reserved.</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="muted-small">
+                        <i class="bi bi-envelope-fill me-1"></i> Contact: <a href="mailto:info@kilifilegal.go.ke">info@kilifilegal.go.ke</a>
+                        <span class="mx-2">|</span>
+                        <i class="bi bi-telephone-fill me-1"></i> Phone: <a href="tel:0768684521">0768 684 521</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="chatbot-button" id="chatbot-toggle" role="button" aria-label="Open Chatbot" tabindex="0">
+        <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        /* ---------- Universal Scroll Reveal for Sections and Service Cards ---------- */
+        (function(){
+            const options = { threshold: 0.14 };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        
+                        // 1. Animate the Section itself
+                        if (target.tagName === 'SECTION') {
+                            target.classList.add('visible');
+                        }
+                        
+                        // 2. Animate Service Cards with staggered delay
+                        if (target.classList.contains('service-card')) {
+                            const delay = parseInt(target.getAttribute('data-delay') || 0);
+                            setTimeout(() => {
+                                target.classList.add('slide-up-visible');
+                            }, delay);
+                        }
+
+                        // Stop observing standard sections, but keep observing cards until fully animated
+                        if (target.tagName === 'SECTION' && !target.querySelector('.service-card')) {
+                             observer.unobserve(target);
+                        }
+                        if (target.classList.contains('service-card') && target.classList.contains('slide-up-visible')) {
+                            observer.unobserve(target);
+                        }
+                    }
+                });
+            }, options);
+
+            // Observe Sections
+            document.querySelectorAll('section.section').forEach(s => observer.observe(s));
+            // Observe Service Cards (for staggered animation)
+            document.querySelectorAll('.service-card').forEach(c => observer.observe(c));
+        }());
+
+        /* ---------- Lazy Loader ---------- */
+        (function(){
+            const lazyTargets = document.querySelectorAll('img[data-src]');
+
+            if ('IntersectionObserver' in window && lazyTargets.length) {
+                const imgObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            const realSrc = img.getAttribute('data-src');
+                            if (realSrc) {
+                                img.src = realSrc;
+                                img.removeAttribute('data-src');
+
+                                img.addEventListener('load', () => {
+                                    img.classList.add('lazy-loaded');
+                                }, { once: true });
+                            }
+                            observer.unobserve(img);
+                        }
+                    });
+                }, { rootMargin: '150px 0px', threshold: 0.01 });
+
+                lazyTargets.forEach(img => imgObserver.observe(img));
+            } else {
+                // Fallback
+                lazyTargets.forEach(img => {
+                    const realSrc = img.getAttribute('data-src');
+                    if (realSrc) {
+                        img.src = realSrc;
+                        img.removeAttribute('data-src');
+                        img.classList.add('lazy-loaded');
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

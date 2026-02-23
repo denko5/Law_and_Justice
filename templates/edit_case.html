@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Case - Kilifi Legal Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables for Palette & Accessibility */
+        :root {
+            --primary-color: #0d3c75;      /* Deep Blue */
+            --primary-light: #1e5490;
+            --accent-color: #ffc107;       /* Yellow/Amber */
+            --success-color: #0d3c75;      /* Adjusted success to primary color for consistency with form button */
+            --info-color: #17a2b8;
+            --danger-color: #dc3545;
+
+            --bg-light: #f4f7f9;
+            --bg-gradient: linear-gradient(135deg, #f3f6fa 0%, #e8eef7 100%);
+            --card-bg: rgba(255, 255, 255, 1);
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.1);
+            
+            --sidebar-expanded-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --footer-bg-color: #1a2a40;
+        }
+
+        /* Consistent Layout & Base Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            display: flex; /* Key for the sidebar layout */
+            overflow-x: hidden; 
+        }
+
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-expanded-width); /* Initial spacing for expanded sidebar */
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden; 
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* ====== Sidebar (Vertical Nav) ====== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-expanded-width);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1050;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        /* Mobile Off-Canvas State */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                left: calc(var(--sidebar-expanded-width) * -1); 
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.4);
+            }
+            .sidebar.mobile-open {
+                left: 0; 
+            }
+            .main-content {
+                margin-left: 0; 
+            }
+        }
+
+        /* Sidebar Brand & Nav */
+        .sidebar-brand {
+             padding: 15px 10px;
+             font-weight: 600;
+             font-size: 1.2rem;
+             text-align: center;
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+             white-space: nowrap;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: white; 
+             text-decoration: none;
+        }
+        .sidebar-brand img {
+            height: 40px;
+            width: 40px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+        }
+        .sidebar-brand span {
+            margin-left: 10px;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-brand { justify-content: center; }
+        .sidebar.collapsed .sidebar-brand span { display: none; }
+
+        .sidebar-nav { 
+            padding: 1rem 0; 
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none;
+            overflow: hidden; 
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white !important;
+        }
+        .nav-link.active::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+        .nav-link i { font-size: 1.4rem; min-width: 20px; }
+
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 12px 0; margin: 0 10px; }
+        .sidebar.collapsed .nav-link span { display: none; }
+        
+
+        /* Mobile Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* ====== Top Header (Consistent Design) ====== */
+        .top-header {
+            background: var(--card-bg);
+            box-shadow: var(--shadow-subtle);
+            padding: 0.75rem 1.5rem; 
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left { display: flex; align-items: center; }
+
+        .page-title h1 { font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin: 0; }
+        .page-title p { font-size: 0.85rem; color: #718096; margin: 0; display: none; }
+
+        @media (min-width: 768px) {
+            .page-title h1 { font-size: 1.75rem; }
+            .page-title p { display: block; }
+        }
+
+        .sidebar-toggle {
+            background: none; border: none; font-size: 1.5rem; color: var(--primary-color); cursor: pointer;
+            padding: 0.5rem; border-radius: 8px; transition: background 0.3s ease, transform 0.3s ease;
+            margin-right: 1rem; 
+        }
+        .sidebar-toggle:hover { background: rgba(13, 60, 117, 0.1); }
+        
+        /* --- Existing Edit Case Styles retained/modified --- */
+        
+        /* Form Card and Elements */
+.card {
+ border: none;
+ border-radius: 15px;
+ box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+ }
+ .form-control, .form-select, .btn {
+ border-radius: 8px;
+ }
+        /* Use CSS variable for main action button */
+.btn-success {
+ background-color: var(--success-color); 
+ border-color: var(--success-color);
+ }
+ .btn-success:hover {
+ background-color: #0a305e;
+ border-color: #0a305e;
+ }
+        
+        /* Page Header - Modified to fit container-fluid layout */
+        .page-header {
+            background: none; 
+            padding: 0;
+            margin: 0;
+            box-shadow: none;
+            text-align: left;
+        }
+
+
+ /* Footer */
+ footer {
+ background-color: var(--primary-color) !important;
+            color: white;
+            text-align: center;
+ }
+        
+        /* Mobile Adjustments */
+        @media (max-width: 767.98px) {
+            .card { padding: 1rem !important; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay" id="mobileOverlay"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
+                <i class="bi bi-person-workspace me-2"></i>
+                <span>Kilifi Legal</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('my_cases') }}" class="nav-link active">
+                    <i class="bi bi-folder-fill"></i>
+                    <span>My Cases</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('documents') }}" class="nav-link">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    <span>Documents</span>
+                </a>
+            </div>
+            
+            <div class="nav-item"> 
+                <a href="{{ url_for('profile') }}" class="nav-link">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Profile</span>
+                 </a>
+            </div>
+            <div class="nav-item">
+                 <a href="{{ url_for('logout') }}" class="nav-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                 </a>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content" id="mainContent">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title">
+                    <h1><i class="bi bi-pencil-square me-2"></i>Edit Case: {{ case.case_number }}</h1>
+                    <p class="d-none d-md-block">Update the status, next hearing details, and venue for this case.</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="rounded-circle bg-warning text-dark fw-bold d-flex justify-content-center align-items-center" style="width: 36px; height: 36px;">
+                            {% if current_user.full_name %}
+                                {{ current_user.full_name.split()[0][0] }}{{ current_user.full_name.split()[-1][0] }}
+                            {% else %}
+                                U
+                            {% endif %}
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-2"></i>View Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <div class="container-fluid flex-grow-1 p-4">
+            
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="toast align-items-center text-white bg-{{ 'success' if category == 'success' else 'danger' }} border-0 show" role="alert">
+                                <div class="d-flex">
+                                    <div class="toast-body">{{ message }}</div>
+                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="card p-4 mx-auto" style="max-width: 800px;">
+                <form method="POST" id="editForm" action="{{ url_for('edit_case', case_id=case.id) }}" class="needs-validation" novalidate>
+                    <div class="row g-3">
+                        
+                        <h5 class="mt-4 mb-3 text-primary"><i class="bi bi-info-circle me-1"></i> Case Information</h5>
+                        
+                        <div class="col-md-6">
+                            <label for="case_number" class="form-label">Case Number</label>
+                            <input type="text" class="form-control" id="case_number" value="{{ case.case_number }}">
+                            <input type="hidden" name="case_id" value="{{ case.id }}">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="case_type" class="form-label">Case Type</label>
+                            <input type="text" class="form-control" id="case_type" value="{{ case.case_type }}">
+                        </div>
+
+                        <h5 class="mt-4 mb-3 text-primary"><i class="bi bi-calendar-event me-1"></i> Status & Next Hearing</h5>
+
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Update Status</label>
+                            <select name="status" class="form-select" id="status" required>
+                                <option value="Ongoing" {% if case.status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+                                <option value="Paused" {% if case.status == 'Paused' %}selected{% endif %}>Paused</option>
+                                <option value="Resumed" {% if case.status == 'Resumed' %}selected{% endif %}>Resumed</option>
+                                <option value="Closed" {% if case.status == 'Closed' %}selected{% endif %}>Closed</option>
+                                <option value="Judgment" {% if case.status == 'Judgment' %}selected{% endif %}>Awaiting Judgment</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="next_hearing_date" class="form-label">Next Hearing Date/Time</label>
+                            <input type="datetime-local" class="form-control" id="next_hearing_date" name="next_hearing_date"
+                                    value="{{ case.next_hearing_date.strftime('%Y-%m-%dT%H:%M') if case.next_hearing_date else '' }}">
+                        </div>
+
+                        <h5 class="mt-4 mb-3 text-primary"><i class="bi bi-geo-alt-fill me-1"></i> Hearing Venue Setup</h5>
+                        
+                        <div class="col-12">
+                            <label for="hearing_mode" class="form-label">Hearing Mode</label>
+                            <select class="form-select" id="hearing_mode" name="hearing_mode" onchange="toggleHearingFields()">
+                                <option value="Physical" {% if case.hearing_mode == 'Physical' %}selected{% endif %}>Physical (In-Person)</option>
+                                <option value="Virtual" {% if case.hearing_mode == 'Virtual' %}selected{% endif %}>Virtual (Online)</option>
+                            </select>
+                        </div>
+
+                        <div id="physicalVenueField" class="col-12" {% if case.hearing_mode == 'Virtual' %}style="display: none;"{% endif %}>
+                            <label for="department" class="form-label">Physical Venue</label>
+                            <input type="text" class="form-control" id="department" name="department" placeholder="e.g. Kilifi Law Courts, Courtroom 4"
+                                    value="{{ case.department or '' }}">
+                        </div>
+
+                        <div id="courtLinkFields" class="row g-3" {% if case.hearing_mode != 'Virtual' %}style="display: none;"{% endif %}>
+                            <div class="col-md-8">
+                                <label for="court_link" class="form-label">Court Link (URL)</label>
+                                <input type="url" class="form-control" id="court_link" name="court_link" placeholder="https://example.com/room"
+                                        value="{{ case.court_link or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="link_title" class="form-label">Link Title</label>
+                                <input type="text" class="form-control" id="link_title" name="link_title" placeholder="e.g. Courtroom B"
+                                        value="{{ case.link_title or '' }}">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('my_cases') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle me-1"></i>Cancel & Back</a>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal"><i class="bi bi-save-fill me-1"></i>Update Case</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white" style="background-color: #0d3c75 !important;">
+                        <h5 class="modal-title" id="confirmModalLabel"><i class="bi bi-patch-question-fill me-2"></i>Confirm Update</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to save the changes and **update** the details for case **{{ case.case_number }}**?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" id="confirmSubmit" style="background-color: #0d3c75; border-color: #0d3c75;"><i class="bi bi-check-circle-fill me-1"></i>Yes, Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="text-white pt-3 pb-2 small mt-auto" style="background-color: var(--primary-color); font-size: 0.85rem;">
+            <div class="container text-center">
+                <p>&copy; 2025 Kilifi Legal Portal. All rights reserved.</p>
+            </div>
+        </footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // === SIDEBAR TOGGLE LOGIC ===
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const desktopBreakpoint = 768; 
+
+        function toggleSidebar() {
+            const isMobile = window.innerWidth < desktopBreakpoint;
+            
+            if (isMobile) {
+                const isOpen = sidebar.classList.toggle('mobile-open');
+                mobileOverlay.classList.toggle('active');
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+                sidebarToggle.querySelector('i').className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+            } else {
+                const isCollapsed = sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                sidebarToggle.querySelector('i').className = 'bi bi-list';
+            }
+        }
+
+        function initializeLayout() {
+             const isMobile = window.innerWidth < desktopBreakpoint;
+             if (isMobile) {
+                 sidebar.classList.remove('collapsed');
+                 mainContent.classList.remove('expanded');
+                 sidebar.classList.remove('mobile-open');
+                 mobileOverlay.classList.remove('active');
+                 document.body.style.overflow = '';
+                 sidebarToggle.querySelector('i').className = 'bi bi-list'; 
+             } else {
+                 if (!sidebar.classList.contains('collapsed')) {
+                     mainContent.style.marginLeft = 'var(--sidebar-expanded-width)';
+                 }
+                 mobileOverlay.classList.remove('active');
+                 sidebar.classList.remove('mobile-open'); 
+                 document.body.style.overflow = ''; 
+                 sidebarToggle.querySelector('i').className = 'bi bi-list';
+             }
+        }
+
+        if(sidebarToggle) { sidebarToggle.addEventListener('click', toggleSidebar); }
+        if(mobileOverlay) { mobileOverlay.addEventListener('click', toggleSidebar); }
+        
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(initializeLayout, 200);
+        });
+        
+        window.addEventListener('load', initializeLayout);
+        // END SIDEBAR TOGGLE LOGIC
+        
+        // Toast activation
+        document.querySelectorAll('.toast').forEach(toast => {
+            new bootstrap.Toast(toast).show();
+        });
+
+        // Modal confirmation
+        document.getElementById('confirmSubmit').addEventListener('click', () => {
+            document.getElementById('editForm').submit();
+        });
+
+        // Toggle hearing fields and manage 'name' attributes for submission
+        function toggleHearingFields() {
+            const mode = document.getElementById('hearing_mode').value;
+            const linkFields = document.getElementById('courtLinkFields');
+            const venueField = document.getElementById('physicalVenueField');
+
+            // Get the specific inputs
+            const departmentInput = document.getElementById('department');
+            const courtLinkInput = document.getElementById('court_link');
+            const linkTitleInput = document.getElementById('link_title');
+
+            if (mode === 'Virtual') {
+                // Show virtual fields, hide physical field
+                linkFields.style.display = 'flex';
+                venueField.style.display = 'none';
+                
+                // Manage the 'name' attribute to control what data is submitted
+                departmentInput.removeAttribute('name');
+                courtLinkInput.setAttribute('name', 'court_link');
+                linkTitleInput.setAttribute('name', 'link_title');
+
+            } else {
+                // Show physical field, hide virtual fields
+                linkFields.style.display = 'none';
+                venueField.style.display = 'block';
+
+                // Manage the 'name' attribute
+                departmentInput.setAttribute('name', 'department');
+                courtLinkInput.removeAttribute('name'); 
+                linkTitleInput.removeAttribute('name'); 
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Run once to set the initial visibility and name attributes based on the current case data
+            toggleHearingFields(); 
+
+            // Re-attach the change listener
+            document.getElementById('hearing_mode').addEventListener('change', toggleHearingFields);
+        });
+    </script>
+
+</body>
+</html>

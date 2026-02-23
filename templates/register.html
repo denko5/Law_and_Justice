@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Kilifi Legal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        /* --- Color Variables --- */
+        :root {
+            --kilifi-blue: #0d3c75;
+            --legal-gold: #ffc107;
+            --danger-red: #dc3545;
+        }
+
+        /* --- Global Layout --- */
+        body {
+            /* Set background to Kilifi Blue to fill screen around the form panel */
+            background-color: var(--kilifi-blue);
+            font-family: 'Segoe UI', system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+            color: var(--kilifi-blue);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            overflow: hidden; 
+        }
+
+        /* --- Main Container (Full Screen) --- */
+        .login-container {
+            width: 100%;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap; 
+        }
+
+        /* --- Left Panel: Image/Branding Side (60% Width on Desktop) --- */
+        .brand-panel {
+            /* Placeholder for dynamic image URL */
+            background-image: url('{{ url_for("static", filename="welcome-login-page-template.jpg") }}'); 
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: multiply;
+            background-color: rgba(13, 60, 117, 0.85); /* Darker blue overlay */
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+            padding: 40px;
+            /* Flex properties for Desktop */
+            flex: 0 0 60%; 
+            max-width: 60%;
+            box-shadow: 0 0 25px rgba(0,0,0,0.4);
+        }
+
+        .brand-panel h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-top: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .brand-panel p {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+            opacity: 0.9;
+        }
+
+        /* --- Right Panel: Register Form Side (40% Width on Desktop) --- */
+        .form-panel {
+            background-color: #ffffff; /* Stark white background for form area */
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            padding: 40px 20px;
+            overflow-y: auto; 
+            position: relative; 
+            /* Flex properties for Desktop */
+            flex: 0 0 40%; 
+            max-width: 40%;
+        }
+        
+        /* Gold Vertical Bar Accent (Desktop Only) */
+        .form-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 6px; 
+            background-color: var(--legal-gold); 
+            box-shadow: 1px 0 5px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- Register Content Wrapper (The card is now transparent) --- */
+        .register-card {
+            background-color: transparent;
+            box-shadow: none; 
+            border: none;
+            width: 100%;
+            max-width: 420px; 
+            padding: 0; 
+            box-sizing: border-box;
+            opacity: 0; 
+            transform: translateY(15px);
+            animation: fadeInSlide 0.7s ease forwards;
+        }
+
+        @keyframes fadeInSlide {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .register-card h3 {
+            color: var(--kilifi-blue);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+
+        .register-card p {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .register-logo {
+            display: block;
+            margin: 0px auto 25px; 
+            width: 80px; 
+            height: 80px;
+            object-fit: contain;
+            border-radius: 50%;
+            padding: 5px;
+            background: #fff;
+            border: 2px solid var(--legal-gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* --- Form Styling --- */
+        .form-label {
+            font-weight: 600; 
+            color: var(--kilifi-blue);
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #d1d3e2;
+            padding: 10px 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--kilifi-blue);
+            box-shadow: 0 0 0 0.15rem rgba(13, 60, 117, 0.25);
+        }
+
+        .form-control.is-invalid, .was-validated .form-control:invalid {
+            border-color: var(--danger-red) !important;
+            box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .input-group-text {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            color: var(--kilifi-blue);
+            border: 1px solid #d1d3e2;
+            border-left: none;
+            padding: 10px 12px;
+        }
+        
+        /* --- Button Styling --- */
+        .btn-primary {
+            background-color: var(--kilifi-blue);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b3263;
+            box-shadow: 0 5px 15px rgba(13, 60, 117, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* --- Footer Links --- */
+        .footer-text {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .footer-text a {
+            color: var(--kilifi-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* --- Responsive Adjustments (Mobile View) --- */
+        @media (max-width: 991.98px) {
+            /* On tablet and mobile, hide the brand panel and let the form panel take full width */
+            .brand-panel {
+                display: none;
+            }
+            .form-panel {
+                flex: 0 0 100%; 
+                max-width: 100%;
+                background-color: var(--kilifi-blue); 
+                padding: 40px 20px; 
+            }
+            .form-panel::before {
+                content: none; /* Hide gold bar on mobile */
+            }
+            .register-card {
+                /* On mobile, give the card a white background and shadow */
+                background-color: #ffffff;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                padding: 30px 30px;
+                margin: 0;
+            }
+            body {
+                overflow-y: auto; 
+            }
+        }
+
+        @media (max-width: 576px) {
+             .register-card {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        
+        <div class="brand-panel d-none d-lg-flex">
+            <div>
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Kilifi Legal Logo" class="register-logo" style="border: none; width: 120px; height: 120px; margin-bottom: 0;">
+                <h1 class="mb-2">Kilifi Legal Portal</h1>
+                <p>Digital Justice Simplified</p>
+                <hr style="width: 50%; border-color: var(--legal-gold); opacity: 1; margin: 20px auto; height: 3px;">
+                <p class="mt-4">Register now to gain secure access to case management, document repository, and advisory services.</p>
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <div class="register-card">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Kilifi Legal Logo" class="register-logo">
+                
+                <h3>Create an Account</h3>
+                <p>Join Kilifi Legal and manage your cases smarter.</p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                {% endwith %}
+
+                <form method="POST" novalidate class="needs-validation">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                            <div class="invalid-feedback">Please enter your full name.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <div class="invalid-feedback">Please choose a username.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback">Please enter a valid email address.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <span class="input-group-text" onclick="toggleVisibility('password', 'toggleIcon1')" title="Show Password">
+                                    <i class="bi bi-eye-fill" id="toggleIcon1"></i> 
+                                </span>
+                                <div class="invalid-feedback">Please enter a password.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                <span class="input-group-text" onclick="toggleVisibility('confirm_password', 'toggleIcon2')" title="Show Confirm Password">
+                                    <i class="bi bi-eye-fill" id="toggleIcon2"></i> 
+                                </span>
+                                <div class="invalid-feedback">Please confirm your password.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-person-plus-fill me-2"></i>Register
+                    </button>
+                </form>
+
+                <div class="footer-text">
+                    Already have an account?
+                    <a href="{{ url_for('login') }}">Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to toggle password visibility
+        function toggleVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye-fill');
+                icon.classList.add('bi-eye-slash-fill');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash-fill');
+                icon.classList.add('bi-eye-fill');
+            }
+        }
+        
+        // Custom Bootstrap validation check
+        (function () {
+            'use strict'
+            const form = document.querySelector('.needs-validation');
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false)
+            }
+        })()
+    </script>
+
+</body>
+</html>

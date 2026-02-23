@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile - Kilifi Legal Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS Variables for Palette & Accessibility */
+        :root {
+            --primary-color: #0d3c75; 
+            --primary-light: #1e5490;
+            --accent-color: #ffc107; 
+            --bg-gradient: linear-gradient(135deg, #f3f6fa 0%, #e8eef7 100%);
+            --card-bg: rgba(255, 255, 255, 1);
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.05);
+            
+            --sidebar-expanded-width: 250px;
+            --sidebar-collapsed-width: 70px;
+        }
+
+        /* Consistent Layout & Base Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            display: flex; 
+            overflow-x: hidden; 
+        }
+
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-expanded-width); /* Initial spacing for expanded sidebar */
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden; 
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* ====== Sidebar (Vertical Nav) ====== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-expanded-width);
+            background: var(--primary-color); /* Solid Primary Color */
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1050;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        /* Mobile Off-Canvas State */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                left: calc(var(--sidebar-expanded-width) * -1); 
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.4);
+            }
+            .sidebar.mobile-open {
+                left: 0; 
+                z-index: 1060; 
+            }
+            .main-content {
+                margin-left: 0; 
+                transition: transform 0.3s ease, filter 0.3s ease;
+            }
+            /* Mobile Sidebar Fix: Dims and blurs main content when sidebar is open */
+            body.sidebar-mobile-open .main-content {
+                filter: brightness(0.5) blur(2px); 
+                pointer-events: none; 
+            }
+        }
+
+        /* Sidebar Brand & Nav */
+        .sidebar-brand {
+             padding: 15px 10px;
+             font-weight: 600;
+             font-size: 1.2rem;
+             text-align: center;
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+             white-space: nowrap;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: white; 
+             text-decoration: none;
+        }
+        .sidebar-brand span {
+            margin-left: 10px;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar.collapsed .sidebar-brand { justify-content: center; }
+        .sidebar.collapsed .sidebar-brand span { display: none; }
+
+        .sidebar-nav { 
+            padding: 1rem 0; 
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none;
+            overflow: hidden; 
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-light); 
+            color: white !important;
+        }
+        .nav-link.active::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+        .nav-link i { font-size: 1.4rem; min-width: 20px; }
+
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 12px 0; margin: 0 10px; }
+        .sidebar.collapsed .nav-link span { display: none; }
+        .sidebar.collapsed .nav-link.active::before { width: 0; } 
+
+        .sidebar-nav-bottom {
+            margin-top: auto; 
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 0;
+        }
+
+        /* Mobile Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); 
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* ====== Top Header (Consistent Design) ====== */
+        .top-header {
+            background: var(--card-bg);
+            box-shadow: var(--shadow-subtle);
+            padding: 0.75rem 1.5rem; 
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left { display: flex; align-items: center; }
+
+        .page-title h1 { font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin: 0; }
+        .page-title p { font-size: 0.85rem; color: #718096; margin: 0; display: none; }
+
+        @media (min-width: 768px) {
+            .page-title h1 { font-size: 1.75rem; }
+            .page-title p { display: block; }
+        }
+
+        .sidebar-toggle {
+            background: none; border: none; font-size: 1.5rem; color: var(--primary-color); cursor: pointer;
+            padding: 0.5rem; border-radius: 8px; transition: background 0.3s ease, transform 0.3s ease;
+            margin-right: 1rem; 
+        }
+        .sidebar-toggle:hover { background: rgba(13, 60, 117, 0.1); }
+        
+        /* --- Profile Page Specific Styles --- */
+        
+        /* Profile Card */
+        .profile-card {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            border-radius: 15px;
+            background-color: var(--card-bg);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Avatar and Header (Retained) */
+        .profile-avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-color); 
+        }
+        
+        .initials-circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            font-size: 40px;
+            font-weight: bold;
+            background-color: var(--primary-color); 
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            border: 4px solid #ffffff; 
+        }
+        
+        .profile-header h2 {
+            font-weight: 700;
+            color: #212529;
+            margin-top: 10px;
+        }
+
+        /* Statistics Box */
+        .stats-box {
+            background-color: #e9f1ff; 
+            padding: 25px;
+            border-radius: 10px;
+            height: 100%; 
+        }
+
+        .stats-box h5 {
+            font-weight: 700;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .stat-item strong {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: background-color 0.3s ease;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+        .btn-primary-custom:hover {
+            background-color: #0a305e;
+            border-color: #0a305e;
+        }
+        
+        .btn-remove {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        /* Footer */
+        .page-footer {
+            background-color: var(--primary-color) !important;
+            color: white;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        /* Mobile specific profile card adjustment */
+        @media (max-width: 767.98px) {
+            .profile-card {
+                margin: 20px auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <nav class="sidebar" id="sidebar">
+        <a class="sidebar-brand" href="{{ url_for('dashboard') }}">
+            <span>Kilifi Legal Portal</span>
+        </a>
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('welcome') }}"><i class="bi bi-house-door-fill"></i><span>Home</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('my_cases') }}"><i class="bi bi-folder-fill"></i><span>My Cases</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('documents') }}"><i class="bi bi-file-earmark-spreadsheet-fill"></i><span>Documents</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('profile') }}"><i class="bi bi-person-fill"></i><span>Profile</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('contact') }}"><i class="bi bi-chat-dots-fill"></i><span>Contact</span></a>
+            </li>
+        </ul>
+        <div class="sidebar-nav-bottom">
+            <a class="nav-link" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+        </div>
+    </nav>
+    
+    <div class="main-content" id="main-content">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle" type="button">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title">
+                    <h1>User Profile & Settings</h1>
+                    <p>Manage your account details and view your performance summary.</p>
+                </div>
+            </div>
+            </header>
+
+        <main class="container-fluid flex-grow-1 p-4">
+            <div class="profile-card">
+                
+                <div class="text-center mb-4">
+                    {% if user.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + user.profile_picture) }}" class="profile-avatar mb-3">
+                        <form method="POST" action="{{ url_for('remove_profile_picture') }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger btn-remove"><i class="bi bi-x-circle-fill me-1"></i>Remove Picture</button>
+                        </form>
+                    {% else %}
+                        {% set initials = user.full_name.split()|map('first')|join('')|upper %}
+                        <div class="initials-circle mb-3">
+                            {{ initials or 'US' }}
+                        </div>
+                    {% endif %}
+                    <h2 class="profile-header">{{ user.full_name }}</h2>
+                    <p class="text-muted"><i class="bi bi-person-badge-fill me-1"></i>Role: Legal Counsel</p>
+                    <span class="badge text-bg-secondary"><i class="bi bi-at me-1"></i>{{ user.username }}</span>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <h4 class="text-primary mb-3"><i class="bi bi-gear-fill me-2"></i>Edit Account Details</h4>
+                        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+                            
+                            <div class="mb-3">
+                                <label for="profile_picture" class="form-label">Change Profile Picture</label>
+                                <input type="file" name="profile_picture" class="form-control" id="profile_picture">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="full_name" class="form-label">Full Name</label>
+                                <input type="text" name="full_name" class="form-control" id="full_name" value="{{ user.full_name }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" name="username" class="form-control" id="username" value="{{ user.username }}" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" id="email" value="{{ user.email }}" required>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-3">
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle me-1"></i>Back to Dashboard</a>
+                                <button type="submit" class="btn btn-primary-custom"><i class="bi bi-check-circle-fill me-1"></i>Update Profile</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="stats-box">
+                            <h5 class="mb-4"><i class="bi bi-bar-chart-fill me-2"></i>Performance Summary</h5>
+                            
+                            <div class="stat-item border-bottom pb-2">
+                                Total Cases Handled: <br>
+                                <strong class="float-end">{{ total_cases }}</strong>
+                            </div>
+
+                            <div class="stat-item border-bottom pb-2">
+                                Ongoing Cases: <br>
+                                <strong class="float-end">{{ ongoing_cases }}</strong>
+                            </div>
+
+                            <div class="stat-item">
+                                Closed Cases (Success/Archive): <br>
+                                <strong class="float-end">{{ closed_cases }}</strong>
+                            </div>
+                            
+                            <small class="text-muted d-block mt-4 text-center">Data refreshed daily.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="page-footer text-white text-center mt-auto">
+            <div class="container">
+                <p class="mb-0">&copy; 2025 Kilifi Legal Portal. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    <div class="overlay" id="mobileOverlay"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const desktopBreakpoint = 768;
+
+        function toggleSidebar() {
+            const isMobile = window.innerWidth < desktopBreakpoint;
+            
+            if (isMobile) {
+                const isOpen = sidebar.classList.toggle('mobile-open');
+                mobileOverlay.classList.toggle('active', isOpen);
+                
+                document.body.classList.toggle('sidebar-mobile-open', isOpen); 
+                
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+                sidebarToggle.querySelector('i').className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
+        }
+
+        function initializeLayout() {
+            const isMobile = window.innerWidth < desktopBreakpoint;
+            
+            // 1. Reset Mobile-specific classes on resize
+            sidebar.classList.remove('mobile-open');
+            mobileOverlay.classList.remove('active');
+            document.body.classList.remove('sidebar-mobile-open');
+            document.body.style.overflow = '';
+            
+            // 2. Adjust Desktop classes
+            if (isMobile) {
+                // Ensure desktop classes are off
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            } else {
+                // Ensure desktop classes are off
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            }
+            sidebarToggle.querySelector('i').className = 'bi bi-list';
+        }
+
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        mobileOverlay.addEventListener('click', toggleSidebar);
+        
+        window.addEventListener('resize', initializeLayout);
+        document.addEventListener('DOMContentLoaded', initializeLayout);
+    </script>
+</body>
+</html>

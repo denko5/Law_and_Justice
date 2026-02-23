@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kilifi Legal Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GLOBAL STYLES & VARIABLES --- */
+        :root {
+            --primary-color: #0d3c75; 
+            --primary-light: #1e5490;
+            --accent-color: #ffc107;
+            --success-color: #28a745;
+            --warning-color: #fd7e14;
+            --danger-color: #dc3545;
+            --bg-gradient: linear-gradient(135deg, #f3f6fa 0%, #e8eef7 100%);
+            --card-bg: rgba(255, 255, 255, 1);
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --sidebar-expanded-width: 250px;
+            --sidebar-collapsed-width: 70px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-expanded-width);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* ====== Sidebar (Vertical Nav) ====== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-expanded-width);
+            background: var(--primary-color);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1050;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        /* Mobile Off-Canvas State & Overlay */
+        @media (max-width: 767.98px) {
+            .sidebar { left: calc(var(--sidebar-expanded-width) * -1); }
+            .sidebar.mobile-open { left: 0; z-index: 1060; }
+            .main-content { margin-left: 0; transition: transform 0.3s ease, filter 0.3s ease; }
+            /* This is crucial for the mobile overlay effect */
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5); 
+                z-index: 1040;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease;
+            }
+            .overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            body.sidebar-mobile-open { 
+                overflow: hidden; /* Prevent body scroll when sidebar is open */
+            }
+        }
+
+        .sidebar-brand { padding: 15px 10px; font-weight: 600; font-size: 1.2rem; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); white-space: nowrap; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; }
+        .sidebar-brand span { margin-left: 10px; transition: opacity 0.3s ease; }
+        .sidebar.collapsed .sidebar-brand span { display: none; }
+
+        .sidebar-nav { padding: 1rem 0; flex-grow: 1; display: flex; flex-direction: column; }
+        .nav-link { color: rgba(255, 255, 255, 0.85); font-weight: 500; padding: 12px 20px; display: flex; align-items: center; gap: 15px; transition: all 0.3s ease; position: relative; text-decoration: none; overflow: hidden; }
+        .nav-link:hover, .nav-link.active { background-color: var(--primary-light); color: white !important; }
+        .nav-link.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background-color: var(--accent-color); transition: all 0.3s ease; }
+        .nav-link i { font-size: 1.4rem; min-width: 20px; }
+        .sidebar.collapsed .nav-link span { display: none; }
+        .sidebar-nav-bottom { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 0; }
+
+        /* ====== Top Header ====== */
+        .top-header {
+            background: var(--card-bg);
+            box-shadow: var(--shadow-subtle);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-toggle { background: none; border: none; font-size: 1.5rem; color: var(--primary-color); cursor: pointer; padding: 0.5rem; margin-right: 1rem; }
+        .page-title h1 { font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin: 0; }
+        @media (min-width: 768px) { .page-title h1 { font-size: 1.75rem; } }
+
+        /* ====== Footer (Updated for new background color) ====== */
+        .page-footer {
+            background-color: var(--primary-color) !important;
+            color: white;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            font-size: 0.85rem;
+        }
+        .page-footer a { color: var(--accent-color); }
+
+        /* Utility Styles for consistent components */
+        .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
+        .card.border-warning { border-width: 3px !important; }
+    </style>
+</head>
+
+<body>
+    <nav class="sidebar" id="sidebar">
+        <a class="sidebar-brand" href="{{ url_for('dashboard') }}">
+            <span>Kilifi Legal Portal</span>
+        </a>
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link {% if active_page == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_page == 'my_cases' %}active{% endif %}" href="{{ url_for('my_cases') }}"><i class="bi bi-folder-fill"></i><span>My Cases</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_page == 'documents' %}active{% endif %}" href="{{ url_for('documents') }}"><i class="bi bi-file-earmark-spreadsheet-fill"></i><span>Documents</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_page == 'admin_messages' %}active{% endif %}" href="{{ url_for('admin_messages') }}"><i class="bi bi-chat-dots-fill"></i><span>Admin Messages</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_page == 'profile' %}active{% endif %}" href="{{ url_for('profile') }}"><i class="bi bi-person-fill"></i><span>Profile</span></a>
+            </li>
+        </ul>
+        <div class="sidebar-nav-bottom">
+            <a class="nav-link" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+        </div>
+    </nav>
+
+    <div class="main-content" id="main-content">
+        <header class="top-header">
+            <div class="header-left d-flex align-items-center">
+                <button class="sidebar-toggle" id="sidebarToggle" type="button">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title">
+                    <h1>{% block page_title %}Kilifi Legal Portal{% endblock %}</h1>
+                </div>
+            </div>
+        </header>
+
+        <main class="container-fluid flex-grow-1 p-4">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="page-footer text-center mt-auto">
+            <div class="container">
+                <div class="row gy-2 text-center text-md-start">
+                    <div class="col-12 col-md-4">
+                        <h6 class="text-uppercase fw-bold mb-2">Legal Support</h6>
+                        <p class="mb-1"><i class="bi bi-telephone-fill me-1"></i>Advice Line: +254 700 111 222</p>
+                        <p class="mb-1"><i class="bi bi-envelope-fill me-1"></i>Email: <a href="mailto:legal@kilifilegal.com" class="text-white text-decoration-none">legal@kilifilegal.com</a></p>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <h6 class="text-uppercase fw-bold mb-2">Technical Support</h6>
+                        <p class="mb-1"><i class="bi bi-telephone-fill me-1"></i>Helpdesk: +254 700 333 444</p>
+                        <p class="mb-1"><i class="bi bi-envelope-fill me-1"></i>Email: <a href="mailto:support@kilifilegal.com" class="text-white text-decoration-none">support@kilifilegal.com</a></p>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <h6 class="text-uppercase fw-bold mb-2">Office Location</h6>
+                        <p class="mb-1">📍 Kilifi Plaza, 3rd Floor</p>
+                        <p class="mb-1">Beside Equity Bank, Kilifi Town</p>
+                        <p class="mb-1">County Attorney's Office</p>
+                    </div>
+                </div>
+
+                <hr class="border-light my-3">
+
+                <div class="row text-center">
+                    <div class="col-12">
+                        <p class="mb-1">&copy; 2025 Kilifi Legal Portal. All rights reserved.</p>
+                        <p>
+                            <a href="#" class="text-white text-decoration-none me-2">Privacy Policy</a> |
+                            <a href="#" class="text-white text-decoration-none ms-2">Terms of Service</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <div class="overlay" id="mobileOverlay"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const desktopBreakpoint = 768;
+
+        function closeSidebar() {
+            const isMobile = window.innerWidth < desktopBreakpoint;
+            if (isMobile && sidebar.classList.contains('mobile-open')) {
+                sidebar.classList.remove('mobile-open');
+                mobileOverlay.classList.remove('active');
+                document.body.classList.remove('sidebar-mobile-open');
+                document.body.style.overflow = '';
+                sidebarToggle.querySelector('i').className = 'bi bi-list';
+            }
+        }
+        
+        function toggleSidebar() {
+            const isMobile = window.innerWidth < desktopBreakpoint;
+
+            if (isMobile) {
+                const isOpen = sidebar.classList.toggle('mobile-open');
+                mobileOverlay.classList.toggle('active', isOpen);
+                document.body.classList.toggle('sidebar-mobile-open', isOpen);
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+                sidebarToggle.querySelector('i').className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
+        }
+
+        function initializeLayout() {
+            // ... (rest of initializeLayout remains the same)
+            const isMobile = window.innerWidth < desktopBreakpoint;
+            
+            // Reset Mobile-specific classes on resize
+            sidebar.classList.remove('mobile-open');
+            mobileOverlay.classList.remove('active');
+            document.body.classList.remove('sidebar-mobile-open');
+            document.body.style.overflow = '';
+            
+            if (isMobile) {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            }
+            sidebarToggle.querySelector('i').className = 'bi bi-list';
+        }
+
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        // FIX: Add click handler to overlay to close the sidebar
+        mobileOverlay.addEventListener('click', closeSidebar);
+        
+        window.addEventListener('resize', initializeLayout);
+        document.addEventListener('DOMContentLoaded', initializeLayout);
+    </script>
+</body>
+</html>
